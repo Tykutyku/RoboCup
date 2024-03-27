@@ -1,0 +1,101 @@
+body, html {
+    font-family: "Lato", sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+header {
+    width: 100%;
+    z-index: 1; 
+}
+#menuIcon {
+    position: absolute;
+    top: 0.65rem; /* 20px/16px base font size */
+    left: 0.75rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 2;
+}
+
+#side-nav {
+    text-align: center;
+    height: 100vh; /* 100% of the view point height */
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #cdcbcb;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 3.75rem;
+}
+#side-nav.expanded{
+    width: 15rem;
+}
+
+#side-nav img{
+    width: 6.25rem;
+    height: 6.25rem;
+}
+
+#side-nav ul {
+    list-style-type: none;
+}
+
+#side-nav ul li a {
+    text-decoration: none;
+    font-size: 1.375rem;
+    color: #000000;
+    display: block;
+    transition: 0.3s;
+}
+
+#side-nav ul li a:hover {
+    color: #000000;
+}
+.content-container {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+}
+main{
+    flex-grow: 1;
+}
+
+main img{
+    object-fit: fill;
+    width: 100%;
+    height: 50rem;
+}
+
+#left_setting{
+    flex: 0 0 20rem; 
+    background-color: #cdcbcb;
+    overflow-y: auto;
+}
+.menu-section {
+    margin-bottom: 1rem;
+}
+/* For phones */
+
+@media (max-width: 600px) {
+    #menuIcon {
+        top: 1rem; 
+        left: 1rem;
+        font-size: 1.5rem;
+    }
+    .side-nav img {
+        width: 5rem; 
+        height: 5rem;
+    }
+    .side-nav ul li a {
+        font-size: 1.2rem; 
+    }
+    .content-container{
+        flex-direction: column;
+    }
+    #left_setting{
+        flex: 1 0 auto;
+    }
+}

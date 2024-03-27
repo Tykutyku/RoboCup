@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Sets viewport to width of device screen, init zoom level 1 to 1 scale -->
+        <title>Visualization Robotsports VDL</title>
+        <link rel="icon" type="image/x-icon" href="/static/images/RobotSports_logo-removebg-preview.png">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    </head>
+    <body>
+        <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
+        <header>
+                <img src="/static/images/RobotSports_logo-removebg-preview.png" alt="RobotSports VDL Team" style="width: 12rem; height: 12rem;" >
+                <div id="selectedMenuItemName">Select page in menu</div>
+        </header>
+        <div id="menuIcon">☰</div> 
+        <aside id="side-nav">
+            <nav>
+                <ul>
+                    <li><a href="#current-game" onclick="updateSelectedItemName('Current Game');"><img src="/static/images/now.png" alt="Current Game"></a><br>Current Game</li>
+                    <li><a href="#history" onclick="updateSelectedItemName('History');"></a><img src="/static/images/server-storage.png" alt="History"></a><br>History</li>
+                    <li><a href="#statistics" onclick="updateSelectedItemName('Statistics');"><img src="/static/images/bar-chart.png" alt="Statistics"></a><br>Statistics</li>
+                    <li><a href="#performance" onclick="updateSelectedItemName('Performance');"><img src="/static/images/speedometer.png" alt="Performance"></a><br>Performance</li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="content-container">
+            <aside id="left_setting">
+                <div class="menu-section">
+                    <label for="robotSelector">Robot:</label>
+                    <select id="robotSelector">
+                        <option value="XT7">XT7</option>
+                        <!-- Other options -->
+                    </select>
+                </div>
+                <div class="menu-section">
+                    <label for="datePicker">Date:</label>
+                    <input type="date" id="datePicker">
+                </div>
+                <div class="menu-section">
+                    <label for="description">Description:</label>
+                    <textarea id="description"></textarea>
+                </div>
+            </aside>
+            <main>
+                <img src="/static/images/roboField.png" alt="RoboField">
+            </main>
+        </div>
+    </body>
+</html>
