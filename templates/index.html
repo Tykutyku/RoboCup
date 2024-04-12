@@ -1,50 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Sets viewport to width of device screen, init zoom level 1 to 1 scale -->
-        <title>Visualization Robotsports VDL</title>
-        <link rel="icon" type="image/x-icon" href="/static/images/RobotSports_logo-removebg-preview.png">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    </head>
-    <body>
-        <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
-        <header>
-                <img src="/static/images/RobotSports_logo-removebg-preview.png" alt="RobotSports VDL Team" style="width: 12rem; height: 12rem;" >
-                <div id="selectedMenuItemName">Select page in menu</div>
-        </header>
-        <div id="menuIcon">☰</div> 
-        <aside id="side-nav">
-            <nav>
-                <ul>
-                    <li><a href="#current-game" onclick="updateSelectedItemName('Current Game');"><img src="/static/images/now.png" alt="Current Game"></a><br>Current Game</li>
-                    <li><a href="#history" onclick="updateSelectedItemName('History');"></a><img src="/static/images/server-storage.png" alt="History"></a><br>History</li>
-                    <li><a href="#statistics" onclick="updateSelectedItemName('Statistics');"><img src="/static/images/bar-chart.png" alt="Statistics"></a><br>Statistics</li>
-                    <li><a href="#performance" onclick="updateSelectedItemName('Performance');"><img src="/static/images/speedometer.png" alt="Performance"></a><br>Performance</li>
-                </ul>
-            </nav>
-        </aside>
-        <div class="content-container">
-            <aside id="left_setting">
-                <div class="menu-section">
-                    <label for="robotSelector">Robot:</label>
-                    <select id="robotSelector">
-                        <option value="XT7">XT7</option>
-                        <!-- Other options -->
-                    </select>
-                </div>
-                <div class="menu-section">
-                    <label for="datePicker">Date:</label>
-                    <input type="date" id="datePicker">
-                </div>
-                <div class="menu-section">
-                    <label for="description">Description:</label>
-                    <textarea id="description"></textarea>
-                </div>
-            </aside>
-            <main>
-                <img src="/static/images/roboField.png" alt="RoboField">
-            </main>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Sets viewport to width of device screen, init zoom level 1 to 1 scale -->
+    <title>Visualization Robotsports VDL</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/RobotSports_logo-removebg-preview.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/robotPositioning.js') }}"></script>
+</head>
+
+<body>
+    <header>
+        <div id="menuIcon">☰</div>
+        <img id="logo" src="/static/images/RobotSports_logo-removebg-preview.png" alt="RobotSports VDL Team">
+        <div id="selectedMenuItemName">Select page in menu</div>
+        <div id="header-content">
+            <div id="timeline-container">
+                Timeline will be here
+            </div>
         </div>
-    </body>
+    </header>
+    <aside id="side-nav">
+        <nav>
+            <ul>
+                <li><a href="#current-game" onclick="updateSelectedItemName('Current Game');">
+                    <img src="/static/images/now.png" alt="">
+                        <span>Current Game</span></a>
+                </li>
+                <li><a href="#history" onclick="updateSelectedItemName('History');">
+                    <img src="/static/images/server-storage.png" alt="">
+                        <span>History</span></a>
+                </li>
+                <li><a href="#statistics" onclick="updateSelectedItemName('Statistics');">
+                    <img src="/static/images/bar-chart.png" alt="">
+                        <span>Statistics</span></a>
+                </li>
+                <li><a href="#performance" onclick="updateSelectedItemName('Performance');">
+                    <img src="/static/images/speedometer.png" alt="">
+                        <span>Performance</span></a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <div class="content-container">
+        <aside id="left_setting">
+            <div class="menu-section">
+                <label for="robotSelector">Select a Robot</label>
+                <br><select id="robotSelector">
+                    <option value="" hidden>Select a Robot</option>
+                    <option value="1">Robot 1</option>
+                    <option value="2">Robot 2</option>
+                    <option value="3">Robot 3</option>
+                    <option value="4">Robot 4</option>
+                    <option value="5">Robot 5</option>
+                </select>
+            </div>
+        </aside>
+        <div class="field-container">
+            <img src="static/images/roboField.png" id="field" alt="Robot Field" />
+            <canvas id="fieldCanvas" class="fieldClass"></canvas>
+            <canvas id="positionCanvas" class="fieldClass"></canvas>
+        </div>
+</body>
+
 </html>

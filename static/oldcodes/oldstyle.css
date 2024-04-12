@@ -1,0 +1,98 @@
+body, html {
+    font-family: "Lato", sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    width: 100%;
+    z-index: 1; 
+}
+
+#selectedMenuItemName{
+    position: absolute;
+    top: 9rem; 
+    left: 1rem;
+}
+
+#menuIcon {
+    position: absolute;
+    top: 0.65rem; /* 20px/16px base font size */
+    left: 0.75rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 2;
+}
+
+#side-nav {
+    text-align: center;
+    height: 100vh; /* 100% of the view point height */
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #cdcbcb;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 3.75rem;
+}
+#side-nav.expanded{
+    width: 12rem;
+}
+
+#side-nav img{
+    width: 6.25rem;
+    height: 6.25rem;
+}
+
+#side-nav ul {
+    list-style-type: none;
+}
+
+#side-nav ul li a {
+    text-decoration: none;
+    font-size: 1.375rem;
+    color: #000000;
+    display: block;
+    transition: 0.3s;
+}
+
+#side-nav ul li a:hover {
+    color: #000000;
+}
+
+.content-container {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+}
+main{
+    flex-grow: 1;
+    position: relative;
+}
+
+main img{
+    width: 100%;
+    height: auto;
+    max-height: 50rem;
+}
+
+#left_setting{
+    flex: 0 0 12rem; 
+    background-color: #cdcbcb;
+    overflow-y: auto;
+}
+.menu-section {
+    margin-bottom: 1rem;
+}
+
+.robot-marker {
+    position: absolute;
+    width: 1rem; 
+    height: 1rem; 
+    transform: translate(-50%, -50%); /* Center the marker on the position */
+    background-color: red; 
+    border-radius: 50%; /* Makes the marker circular */
+}
