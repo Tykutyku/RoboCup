@@ -5,11 +5,22 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name":"Run app.py",
-			"type":"debugpy",
+			"type": "debugpy",
+			"request": "launch",
 			"program": "./app.py",
+			"args": ["--browser-window"],
+		}
+		,
+		{
+			"name":"flask debug",
+			"type":"debugpy",
 			"request":"launch",
-			"args":["--no-debugger","--no-reload","--browserWindow"],
+			"module": "flask",
+			"env": {
+				"FLASK_APP": "app.py",
+				"FLASK_DEBUG": "1"
+			},
+			"args":["--debug","run"],
 			"jinja":true,
 			"autoStartBrowser":false
 		}
