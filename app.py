@@ -1,6 +1,8 @@
+import os
 import sys
 import threading
 import json
+import webbrowser
 from flask import Flask, render_template, jsonify, request, make_response
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QUrl
@@ -54,11 +56,12 @@ if __name__ == '__main__':
     # PyQt application 
     import_data_file()
     app = QApplication(sys.argv) # initialize app with allow command-line
-    # mainWindow = QMainWindow() # creates main window
     webEngineView = QWebEngineView() # creates widget to display web pages
     webEngineView.load(QUrl("http://localhost:5000"))
-    # mainWindow.setCentralWidget(webEngineView) 
-    # mainWindow.show() # displays main window 
+    if("--appWindow" in sys.argv):# creates and display main window
+        mainWindow = QMainWindow()
+        mainWindow.setCentralWidget(webEngineView) 
+        mainWindow.show()
+    elif("--browserWindow" in sys.argv):
+        webbrowser.open("localhost:5000")
     sys.exit(app.exec_()) # start app waiting for user interaction with ensures app will exit when terminated
-
-
