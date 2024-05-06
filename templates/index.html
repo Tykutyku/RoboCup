@@ -26,44 +26,69 @@
     <aside id="side-nav">
         <nav>
             <ul>
-                <li><a href="#current-game" onclick="updateSelectedItemName('Current Game');">
+                <li><a href="/templates/realTime.html">
                     <img src="/static/images/now.png" alt="">
-                        <span>Current Game</span></a>
-                </li>
-                <li><a href="#history" onclick="updateSelectedItemName('History');">
-                    <img src="/static/images/server-storage.png" alt="">
-                        <span>History</span></a>
-                </li>
-                <li><a href="#statistics" onclick="updateSelectedItemName('Statistics');">
-                    <img src="/static/images/bar-chart.png" alt="">
-                        <span>Statistics</span></a>
-                </li>
-                <li><a href="#performance" onclick="updateSelectedItemName('Performance');">
+                    <span>Real-time</span>
+                </a></li>
+                <li><a href="/templates/fromCSV.html">
+                    <img src="/static/images/csv.png" alt="">
+                    <span>CSV standard</span>
+                </a></li>
+                <li><a href="/templates/fromJSON.html">
+                    <img src="/static/images/json-file.png" alt="">
+                    <span>JSON standard</span>
+                </a></li>
+                <li><a href="/templates/index.html">
                     <img src="/static/images/speedometer.png" alt="">
-                        <span>Performance</span></a>
-                </li>
+                    <span>Index for tests</span>
+                </a></li>
+                
             </ul>
         </nav>
     </aside>
     <div class="content-container">
         <aside id="left_setting">
             <div class="menu-section">
-                <label for="robotSelector">Select a Robot</label>
+                <label for="fileUploader">Upload a file</label>
+                <form id="fileUploader" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
+                    <input type="file" name="file" accept=".csv, .msl">
+                    <input type="submit" value="Upload">
+                </form>                
                 <br><select id="robotSelector">
                     <option value="" hidden>Select a Robot</option>
-                    <option value="1">Robot 1</option>
-                    <option value="2">Robot 2</option>
-                    <option value="3">Robot 3</option>
-                    <option value="4">Robot 4</option>
-                    <option value="5">Robot 5</option>
                 </select>
+                <button id="loadPositionsButton">Load Positions</button>
             </div>
+            
         </aside>
+        <script type="text/javascript">
+            function uploadComplete(data) {
+                alert(data.message);
+            }
+        </script>            
+        <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
         <div class="field-container">
-            <img src="static/images/roboField.png" id="field" alt="Robot Field" />
-            <canvas id="fieldCanvas" class="fieldClass"></canvas>
-            <canvas id="positionCanvas" class="fieldClass"></canvas>
+            <svg id="soccerField" class="fieldClass"  viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
+                <!-- Outer boundaries -->
+                <rect x="1" y="1" width="220" height="140" fill="#136A16" stroke="#FFF" stroke-width="2"/>
+                <!-- Halfway line -->
+                <line x1="110" y1="1" x2="110" y2="142" stroke="#FFF" stroke-width="2"/>
+                <!-- Center circle -->
+                <circle cx="110" cy="70" r="16" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Left penalty area -->
+                <rect x="1" y="35.5" width="22.5" height="69" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Right penalty area -->
+                <rect x="198.5" y="35.5" width="22.5" height="69" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Left goal -->
+                <rect x="1" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Right goal -->
+                <rect x="213.5" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Center mark -->
+                <circle cx="110" cy="70" r="1.5" fill="#FFF" />
+                <g id="robotPositions"></g>
+            </svg>
         </div>
+</div>
 </body>
 
 </html>

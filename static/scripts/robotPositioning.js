@@ -1,138 +1,97 @@
-const FIELD_WIDTH_METERS = 22; // width of the real field in meters (now using 'Y' dimension)
-const FIELD_HEIGHT_METERS = 14;
-const CANVAS_HEIGHT = 1400;
-const CANVAS_WIDTH = 2200;
-
-// const loadButton = document.getElementById('loadButton');
-let robotSelector;
-let positionCanvas;
-let fieldCanvas;
-let positionLogs;
-
-
-let robotPositions = [];
-let scaleX, scaleY, originX, originY;
-
-// loadButton.addEventListener('click', function () {
-//     const robotId = robotSelector.value;
-//     if (robotId) { // Check if a robot is selected
-//         fetchRobotPositions(robotId);
-//         // updateField();
-//     }
-// });
-document.addEventListener('DOMContentLoaded', function () {
-    robotSelector = document.getElementById('robotSelector');
-    positionCanvas = document.getElementById('positionCanvas');
-    fieldCanvas = document.getElementById('fieldCanvas');
-    positionLogs = document.getElementsByClassName('scrollable-logs')[0];
-    robotSelector.onchange = () => { robotSelector_Change(); }
+document.addEventListener('DOMContentLoaded', function() {
+    const robotSelector = document.getElementById('robotSelector');
+    const robotPositionsGroup = document.getElementById('robotPositions'); // Define this outside the functions for easy access
     
-    
-    drawField();
-    let ctx = positionCanvas.getContext("2d");
-    ctx.translate(fieldCanvas.width / 2, fieldCanvas.height / 2);
-});
-
-async function fetchRobotPositions(robotId) {
-    try {
-        const response = await fetch(`/robot_positions?robot_id=${robotId}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // Function to fetch and load robot positions
+    function loadRobotPositions() {
+            const selectedRobotId = robotSelector.value;
+            if (!selectedRobotId) {
+                alert('Please select a robot before loading positions.');
+                return;
+            }
+            fetchRobotPositions(selectedRobotId);
         }
-        robotPositions = await response.json();
-    } catch (error) {
-        console.error('Fetch error:', error);
-    }
-}
-function drawField() {
-    fieldCanvas.width = CANVAS_WIDTH;
-    fieldCanvas.height = CANVAS_HEIGHT;
-    positionCanvas.width = CANVAS_WIDTH;
-    positionCanvas.height = CANVAS_HEIGHT;
-    let ctx = fieldCanvas.getContext("2d");
-    ctx.translate(fieldCanvas.width / 2, fieldCanvas.height / 2);
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.arc(0, 0, 20, 0, 2 * Math.PI);
-    // ctx.fill();
-    ctx.stroke();
-}
+    
+        // Event listener for "Load Positions" button click
+        document.getElementById('loadPositionsButton').addEventListener('click', loadRobotPositions);
 
-function robotSelector_Change() {
-    fetchRobotPositions(robotSelector.value);
-    let ctx = positionCanvas.getContext("2d");
-    ctx.clearRect(-positionCanvas.width / 2, -positionCanvas.height /2, positionCanvas.width, positionCanvas.height);
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    let counter = 0;
-    for (item of robotPositions) {
-        ctx.moveTo(item.y * 100, item.x * 100);
-        ctx.arc(item.y * 100, item.x * 100, 2, 0, 2 * Math.PI);
-        counter++;
+
+    function testCenter() {
+        const svgContainer = document.getElementById('robotPositions');
+        svgContainer.innerHTML = '';
+    
+        const center = transformCoordinates(0, 0);
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", center.x);
+        circle.setAttribute("cy", center.y);
+        circle.setAttribute("r", 1); // Size of the marker
+        circle.setAttribute("fill", "blue"); // Color of the center marker
+        svgContainer.appendChild(circle);
     }
-    ctx.stroke();
-    console.log("done, added " + counter +" dots");
-}
-/*
-window.addEventListener('resize', () => {
-    updateScale();
+     
+
+    async function fetchRobotPositions(robotId) {
+        try {
+            const response = await fetch(`/robot_positions?robot_id=${robotId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            updateRobotPositions(data);
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+    function transformCoordinates(robotX, robotY) {
+        var scale = 10;  
+        
+        var offsetX = (230 / 2)-5; // excluding margin
+        var offsetY = (150 / 2)-5; // excluding margin
+    
+        var svgX = (robotY * scale) + offsetX; 
+        var svgY = (robotX * -scale) + offsetY; 
+    
+        return { x: svgX, y: svgY };
+    }
+
+    testCenter();
+
+    function updateRobotPositions(positions) {
+        console.log('UpdatePositions called with data:', positions);
+        const svgContainer = document.getElementById('robotPositions');
+        svgContainer.innerHTML = '';
+    
+        // Add new positions
+        positions.forEach(pos => {
+            const {x, y} = transformCoordinates(pos.x, pos.y);
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", 1); 
+            circle.setAttribute("fill", "red"); 
+            svgContainer.appendChild(circle);
+        });
+    }
+    
+        function updateRobotSelector(robots) {
+            robotSelector.innerHTML = '<option value="" hidden>Select a Robot</option>';
+            robots.forEach(robotId => {
+                const option = document.createElement('option');
+                option.value = robotId;
+                option.textContent = `Robot ${robotId}`;
+                robotSelector.appendChild(option);
+            });
+        }
+
+    function uploadComplete(data) {
+        alert(data.message);
+        // Fetch the latest robot IDs from the server or extract them from the response
+        fetch('/all_robots') // Endpoint to fetch all robot IDs
+            .then(response => response.json())
+            .then(data => updateRobotSelector(data.robots))
+            .catch(error => console.error('Error fetching robot IDs:', error));
+    }
+
+    window.uploadComplete = uploadComplete; 
+    loadRobotPositions();
 });
 
-function updateScale() {
-    const fieldContainer = document.querySelector('.field-container');
-
-    // Calculate the visible part of the field container that maintains the aspect ratio
-    const visibleWidth = fieldContainer.clientWidth; // Full width is visible
-    // Height is based on width and the aspect ratio of the field (14/22)
-    const visibleHeight = visibleWidth * (fieldHeightMeters / fieldWidthMeters);
-
-    // Calculate scale based on the visible dimensions
-    scaleX = visibleWidth / fieldWidthMeters;
-    scaleY = visibleHeight / fieldHeightMeters;
-
-    // Calculate the origin with respect to the container
-    originX = fieldContainer.offsetLeft + (visibleWidth / 2);
-    // The header's height is subtracted from the offsetTop to get the correct Y position
-    originY = fieldContainer.offsetTop + (visibleHeight / 2) - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height'));
-    const headerHeight = document.querySelector('header').offsetHeight;
-    originY = fieldContainer.offsetTop + (visibleHeight / 2) - headerHeight;
-}
-
-function convertCoordinates(realX, realY) {
-    let screenX = originX + (realY * scaleY); // 'Y' now represents width
-    let screenY = originY - (realX * scaleX); // 'X' now represents height, Y-axis is inverted
-    return { x: screenX, y: screenY };
-}
-
-function logPosition(realX, realY, screenX, screenY) {
-    if (positionLogs) {
-        const log = document.createElement('li');
-        log.textContent = `Real position: ${realX.toFixed(2)}, ${realY.toFixed(2)} -> After calculation: ${screenX.toFixed(2)}, ${screenY.toFixed(2)}`;
-        positionLogs.appendChild(log);
-    } else {
-        console.error('positionLogs element not found');
-    }
-}
-
-function updateRobotPositions(positions) {
-    const positionsDiv = document.getElementById('robotPositions');
-    positionsDiv.innerHTML = ''; // Clear existing positions
-
-    positions.forEach(pos => {
-        const screenPos = convertCoordinates(pos.x, pos.y);
-        // Now passing both original and calculated positions to logPosition
-        logPosition(pos.x, pos.y, screenPos.x, screenPos.y);
-        
-        // Create and append the robot marker to the field
-        const robotDiv = document.createElement('div');
-        robotDiv.classList.add('robot-marker');
-        robotDiv.style.left = `${screenPos.x}px`;
-        robotDiv.style.top = `${screenPos.y}px`;
-        positionsDiv.appendChild(robotDiv);
-    });
-}
-*/
