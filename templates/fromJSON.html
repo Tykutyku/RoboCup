@@ -1,61 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualization Robotsports VDL</title>
-    <link rel="icon" type="image/x-icon" href="/static/images/RobotSports_logo-removebg-preview.png">
+    <link rel="icon" type="image/x-icon" href="/static/images/logo.png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
     <header>
         <div id="menuIcon">☰</div>
-        <img id="logo" src="/static/images/RobotSports_logo-removebg-preview.png" alt="RobotSports VDL Team">
+        <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
         <div id="selectedMenuItemName">Select page in menu</div>
         <div id="header-content">
             <div id="timeline-container">
-                Timeline will be here
-            </div>
-        </div>
+                <div class="chart-and-controls">
+                    <canvas id="posDeltaChart"></canvas>
+                    <div id="pagination-controls">
+                        <button id="prevPageButton">Previous 20</button>
+                        <button id="nextPageButton">Next 20</button>
+                    </div>
+                </div>
+            </div>                        
     </header>
     <aside id="side-nav">
         <nav>
             <ul>
-                <li><a href="/templates/realTime.html" onclick="updateSelectedItemName('Real-time');">
+                <li><a href="/templates/realTime.html">
                     <img src="/static/images/now.png" alt="">
-                        <span>Real-time</span></a>
-                </li>
-                <li><a href="/templates/fromCSV.html" onclick="updateSelectedItemName('CSV standard');">
+                    <span>Real-time</span>
+                </a></li>
+                <li><a href="/templates/fromCSV.html">
                     <img src="/static/images/csv.png" alt="">
-                        <span>CSV standard</span></a>
-                </li>
-                <li><a href="/templates/fromJSON.html" onclick="updateSelectedItemName('JSON standard');">
+                    <span>CSV standard</span>
+                </a></li>
+                <li><a href="/templates/fromJSON.html">
                     <img src="/static/images/json-file.png" alt="">
-                        <span>JSON standard</span></a>
-                </li>
-                <li><a href="/templates/index.html" onclick="updateSelectedItemName('index');">
+                    <span>JSON standard</span>
+                </a></li>
+                <li><a href="/templates/index.html">
                     <img src="/static/images/speedometer.png" alt="">
-                        <span>index for tests</span></a>
-                </li>
+                    <span>Index for tests</span>
+                </a></li>
             </ul>
         </nav>
     </aside>
     <div class="content-container">
         <aside id="left_setting">
             <div class="section-tabs">
-                <button onclick="switchSection('menu')">Menu</button>
-                <button onclick="switchSection('stats')">Stats</button>
+                <button data-section="menu">Menu</button>
+                <button data-section="stats">Stats</button>
             </div>
-            <div class="menu-section">
-                <label for="fileUploader">Upload a file</label>
+            <div class="section" id="menu-section">
+                <label for="fileUploader">Upload a MSL file</label>
                 <form id="fileUploader" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
-                    <input type="file" name="file" accept=".csv, .msl">
-                    <input type="submit" value="Upload">
+                    <input type="file" name="file" accept=".msl" onchange="this.form.submit()">
+                    <script type="text/javascript">
+                        function uploadComplete(result) {
+                            console.log("Upload complete:", result);
+                            document.getElementById('pagination-controls').style.display = 'flex';
+                        }
+                    </script>
                 </form>                
-                <br><select id="robotSelector">
+                <br>
+                <select id="robotSelector">
                     <option value="" hidden>Select a Robot</option>
+                </select>
+                <label for="positionSelector">Choose Position Type:</label>
+                <select id="positionSelector">
+                    <option value="self">Self (x, y)</option>
+                    <option value="target">Target (tx, ty)</option>
+                    <option value="both">Both</option>
                 </select>
                 <button id="loadPositionsButton">Load Positions</button>
             </div>
@@ -63,14 +79,9 @@
                 <!-- Stats-related content here -->
             </div>
         </aside>
-        <script type="text/javascript">
-            function uploadComplete(data) {
-                alert(data.message);
-            }
-        </script>            
         <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
         <div class="field-container">
-            <svg id="soccerField" class="fieldClass"  viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
+            <svg id="soccerField" class="fieldClass" viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">
                 <!-- Outer boundaries -->
                 <rect x="1" y="1" width="220" height="140" fill="#136A16" stroke="#FFF" stroke-width="2"/>
                 <!-- Halfway line -->
@@ -86,13 +97,19 @@
                 <!-- Right goal -->
                 <rect x="213.5" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
                 <!-- Center mark -->
-                <circle cx="110" cy="70" r="1.5" fill="#FFF" />
+                <circle cx="110" cy="70" r="1.5" fill="#FFF"/>
                 <g id="robotPositions"></g>
             </svg>
         </div>
     </div>
     <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/robotPositioning.js') }}"></script>
+    <script>
+        document.querySelectorAll('.section-tabs button').forEach(button => {
+            button.addEventListener('click', () => {
+                switchSection(button.getAttribute('data-section'));
+            });
+        });
+    </script>
 </body>
-
 </html>

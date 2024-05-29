@@ -4,19 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualization Robotsports VDL CSV</title>
-    <link rel="icon" type="image/x-icon" href="/static/images/RobotSports_logo-removebg-preview.png">
+    <link rel="icon" type="image/x-icon" href="/static/images/logo.png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
         <div id="menuIcon">☰</div>
-        <img id="logo" src="/static/images/RobotSports_logo-removebg-preview.png" alt="RobotSports VDL Team">
+        <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
         <div id="selectedMenuItemName">Select page in menu</div>
         <div id="header-content">
             <div id="timeline-container">
-                Timeline will be here
+                <div class="chart-and-controls">
+                    <canvas id="posDeltaChart"></canvas>
+                    <div id="pagination-controls">
+                        <button id="prevPageButton">Previous 20</button>
+                        <button id="nextPageButton">Next 20</button>
+                    </div>
+                </div>
             </div>
-        </div>
     </header>
     <aside id="side-nav">
         <nav>
@@ -37,7 +43,6 @@
                     <img src="/static/images/speedometer.png" alt="">
                     <span>Index for tests</span>
                 </a></li>
-                
             </ul>
         </nav>
     </aside>
@@ -49,9 +54,8 @@
             </div>
             <div class="section" id="menu-section">
                 <label for="fileUploader">Upload a CSV file</label>
-                <form id="fileUploader" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
-                    <input type="file" name="file" accept=".csv">
-                    <input type="submit" value="Upload">
+                <form id="fileUploaderForm" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
+                    <input type="file" name="file" id="fileUploader" accept=".csv">
                 </form>
                 <br>
                 <label for="dataSelector">Choose Data Type:</label>
@@ -60,7 +64,6 @@
                     <option value="decawave">Decawave Data</option>
                     <option value="both">Both</option>
                 </select>
-                <button id="loadPositionsButton">Load Positions</button>
             </div>
             <div class="section" id="stats-section" style="display: none;">
                 <!-- Stats-related content here -->
@@ -68,7 +71,7 @@
         </aside>
         <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
         <div class="field-container">
-            <svg id="soccerField" class="fieldClass"  viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
+            <svg id="soccerField" class="fieldClass" viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
                 <!-- Outer boundaries -->
                 <rect x="1" y="1" width="220" height="140" fill="#136A16" stroke="#FFF" stroke-width="2"/>
                 <!-- Halfway line -->

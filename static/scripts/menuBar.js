@@ -15,37 +15,43 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('selectedMenuItemName').textContent = 'Select page in menu';
     }
 
-    menu = document.getElementById("side-nav");
-    document.getElementById("menuIcon").addEventListener("click", toggle_sidebar);
-    //toggle_sidebar(); // Ensure this is defined or handled appropriately
+    const menu = document.getElementById('side-nav');
+    document.getElementById('menuIcon').addEventListener("click", toggle_sidebar);
 
-    // You might still want to keep switchSection here if it's used for other purposes
+    function toggle_sidebar() {
+        if (menu.classList.contains("expanded")) {
+            menu.classList.remove("expanded");
+        } else {
+            menu.classList.add("expanded");
+        }
+    }
+
+    // Set initial state
     switchSection('menu');
 });
 
-function toggle_sidebar() {
-    if (menu.classList.contains("expanded")) {
-        menu.classList.remove("expanded");
-    } else {
-        menu.classList.add("expanded");
-    }
-}
-
-// tabs
+// Move switchSection function to global scope
 function switchSection(section) {
-    var sections = document.querySelectorAll('#left_setting .section');
-    var buttons = document.querySelectorAll('#left_setting .section-tabs button');
+    const sections = document.querySelectorAll("#left_setting .section");
+    const buttons = document.querySelectorAll("#left_setting .section-tabs button");
 
-    sections.forEach(function(sec) {
-        sec.style.display = 'none'; 
-        sec.classList.remove('active'); 
+    sections.forEach(function (sec) {
+        sec.style.display = 'none';
+        sec.classList.remove('active');
     });
 
-    buttons.forEach(function(btn) {
-        btn.classList.remove('active'); 
+    buttons.forEach(function (btn) {
+        btn.classList.remove('active');
     });
 
-    document.getElementById(section + '-section').style.display = 'block';
-    document.getElementById(section + '-section').classList.add('active'); 
-    document.querySelector('#left_setting .section-tabs button[data-section="' + section + '"]').classList.add('active');
+    const targetSection = document.getElementById(section + '-section');
+    if (targetSection) {
+        targetSection.style.display = 'block';
+        targetSection.classList.add('active');
+    }
+
+    const activeButton = document.querySelector('#left_setting .section-tabs button[data-section="' + section + '"]');
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
 }
