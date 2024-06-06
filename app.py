@@ -3,7 +3,6 @@ import json
 from flask import Flask, request, jsonify, render_template, redirect, url_for, make_response
 import pandas as pd
 
-
 app = Flask(__name__)
 position_data = {}
 position_data_csv = {}
@@ -90,9 +89,6 @@ def process_csv_data(df, file):
         return False
     return True
 
-
-
-
 def process_msl_data(data):
     try:
         for item in data:
@@ -131,7 +127,7 @@ def get_robot_positions():
     robot_id = request.args.get('robot_id', type=int)
     position_type = request.args.get('type')
     start = request.args.get('start', default=0, type=int)
-    count = request.args.get('count', default=2, type=int)
+    count = request.args.get('count', default=20, type=int)
 
     if robot_id not in position_data:
         return jsonify({"error": "Robot not found"}), 404
@@ -140,9 +136,9 @@ def get_robot_positions():
     paginated_positions = positions[start:start + count]
 
     if position_type == "self":
-        paginated_positions = [{"x": pos["x"], "y": pos["y"]} for pos in paginated_positions]
+        paginated_positions = [{"x": pos["x"], "y": pos["y"], "gametime": pos["gametime"]} for pos in paginated_positions]
     elif position_type == "target":
-        paginated_positions = [{"target_x": pos["target_x"], "target_y": pos["target_y"]} for pos in paginated_positions]
+        paginated_positions = [{"target_x": pos["target_x"], "target_y": pos["target_y"], "gametime": pos["gametime"]} for pos in paginated_positions]
     elif position_type == "both":
         paginated_positions = paginated_positions
 

@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Sets viewport to width of device screen, init zoom level 1 to 1 scale -->
     <title>Visualization Robotsports VDL</title>
     <link rel="icon" type="image/x-icon" href="/static/images/logo.png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
-    <script src="{{ url_for('static', filename='scripts/robotPositioning.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
     <header>
         <div id="menuIcon">☰</div>
-        <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
-        <div id="selectedMenuItemName">Select page in menu</div>
+        <div id="logo-container">
+            <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
+            <div id="selectedMenuItemName">Select page in menu</div>
+        </div>
+        <div id="extraHeaderSpace"></div>
         <div id="header-content">
             <div id="timeline-container">
-                Timeline will be here
-            </div>
+                <div class="chart-and-controls">
+                    <canvas id="posDeltaChart"></canvas>
+                </div>
+            </div>                        
         </div>
-    </header>
+    </header> 
     <aside id="side-nav">
+        <div id="backIcon">☰</div>
         <nav>
             <ul>
-                <li><a href="/templates/realTime.html">
+                <li><a href="/templates/index.html">
                     <img src="/static/images/now.png" alt="">
                     <span>Real-time</span>
                 </a></li>
@@ -38,37 +40,43 @@
                     <img src="/static/images/json-file.png" alt="">
                     <span>JSON standard</span>
                 </a></li>
-                <li><a href="/templates/index.html">
+                <li><a href="/templates/test.html">
                     <img src="/static/images/speedometer.png" alt="">
                     <span>Index for tests</span>
-                </a></li>
-                
+                </a></li>       
             </ul>
         </nav>
     </aside>
     <div class="content-container">
         <aside id="left_setting">
-            <div class="menu-section">
-                <label for="fileUploader">Upload a file</label>
-                <form id="fileUploader" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
-                    <input type="file" name="file" accept=".csv, .msl">
-                    <input type="submit" value="Upload">
-                </form>                
-                <br><select id="robotSelector">
-                    <option value="" hidden>Select a Robot</option>
-                </select>
-                <button id="loadPositionsButton">Load Positions</button>
+            <div class="section-tabs">
+                <button data-section="menu">Menu</button>
+                <button data-section="stats">Stats</button>
+                <button data-section="legend">Legend</button>
             </div>
-            
+            <div class="section" id="menu-section">
+                <label for="fileUploader">Upload a CSV file</label>
+                <form id="fileUploaderForm" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
+                    <input type="file" name="file" id="fileUploader" accept=".csv">
+                </form>
+                <br>
+                <label for="dataSelector">Choose Data Type:</label>
+                <select id="dataSelector">
+                    <option value="self">Self Data</option>
+                    <option value="decawave">Decawave Data</option>
+                    <option value="both">Both</option>
+                </select>
+            </div>
+            <div class="section" id="stats-section" style="display: none;">
+                <!-- Stats-related content here -->
+            </div>
+            <div class="section" id="legend-section" style="display: none;">
+                <!-- legend content here -->
+            </div>
         </aside>
-        <script type="text/javascript">
-            function uploadComplete(data) {
-                alert(data.message);
-            }
-        </script>            
         <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
         <div class="field-container">
-            <svg id="soccerField" class="fieldClass"  viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
+            <svg id="soccerField" class="fieldClass" viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
                 <!-- Outer boundaries -->
                 <rect x="1" y="1" width="220" height="140" fill="#136A16" stroke="#FFF" stroke-width="2"/>
                 <!-- Halfway line -->
@@ -88,7 +96,8 @@
                 <g id="robotPositions"></g>
             </svg>
         </div>
-</div>
+    </div>
+    <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/robotPositioningCSV.js') }}"></script>
 </body>
-
 </html>

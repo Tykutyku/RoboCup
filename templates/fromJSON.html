@@ -11,23 +11,27 @@
 <body>
     <header>
         <div id="menuIcon">☰</div>
-        <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
-        <div id="selectedMenuItemName">Select page in menu</div>
+        <div id="logo-container">
+            <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
+            <div id="selectedMenuItemName">Select page in menu</div>
+        </div>
         <div id="header-content">
+            <div id="extraHeaderSpace"></div>
             <div id="timeline-container">
                 <div class="chart-and-controls">
                     <canvas id="posDeltaChart"></canvas>
-                    <div id="pagination-controls">
-                        <button id="prevPageButton">Previous 20</button>
-                        <button id="nextPageButton">Next 20</button>
-                    </div>
+                    <canvas id="selfPosDeltaChart"></canvas>
+                    <canvas id="targetPosDeltaChart"></canvas>
+                    <input type="range" id="zoomRange" min="0" max="100" value="0" step="1">
                 </div>
             </div>                        
+        </div>
     </header>
     <aside id="side-nav">
+        <div id="backIcon">☰</div>
         <nav>
             <ul>
-                <li><a href="/templates/realTime.html">
+                <li><a href="/templates/index.html">
                     <img src="/static/images/now.png" alt="">
                     <span>Real-time</span>
                 </a></li>
@@ -39,10 +43,10 @@
                     <img src="/static/images/json-file.png" alt="">
                     <span>JSON standard</span>
                 </a></li>
-                <li><a href="/templates/index.html">
+                <li><a href="/templates/test.html">
                     <img src="/static/images/speedometer.png" alt="">
                     <span>Index for tests</span>
-                </a></li>
+                </a></li>       
             </ul>
         </nav>
     </aside>
@@ -51,6 +55,7 @@
             <div class="section-tabs">
                 <button data-section="menu">Menu</button>
                 <button data-section="stats">Stats</button>
+                <button data-section="legend">Legend</button>
             </div>
             <div class="section" id="menu-section">
                 <label for="fileUploader">Upload a MSL file</label>
@@ -77,6 +82,14 @@
             </div>
             <div class="section" id="stats-section" style="display: none;">
                 <!-- Stats-related content here -->
+            </div>
+            <div class="section" id="legend-section" style="display: none;">
+                <h2>Legend</h2>
+                <p><strong>Red Circles:</strong> Represent self-reported positions.</p>
+                <p><strong>Black Circles:</strong> Represent target-reported positions.</p>
+                <p><strong>Green chart:</strong> Represents the distance between self and target data points.</p>
+                <p><strong>Red chart:</strong> Represents the distance between self and center of the field.</p>
+                <p><strong>Black chart:</strong> Represents the distance between target and center of the field.</p>
             </div>
         </aside>
         <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>

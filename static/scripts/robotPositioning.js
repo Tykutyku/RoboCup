@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const robotSelector = document.getElementById('robotSelector');
     const positionSelector = document.getElementById('positionSelector');
-    const prevPageButton = document.getElementById('prevPageButton');
-    const nextPageButton = document.getElementById('nextPageButton');
+    const canvasBoth = document.getElementById('posDeltaChart');
+    const canvasSelf = document.getElementById('selfPosDeltaChart');
+    const canvasTarget = document.getElementById('targetPosDeltaChart'); 
 
     let currentPage = 0;
     const pageSize = 20;
@@ -10,7 +11,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadRobotPositions() {
         const selectedRobotId = robotSelector.value;
         const selectedPositionType = positionSelector.value;
+        showCorrectCanvas(selectedPositionType);
         fetchRobotPositions(selectedRobotId, selectedPositionType, currentPage * pageSize, pageSize);
+    }
+
+    function showCorrectCanvas(positionType) {
+        canvasBoth.style.display = 'none';
+        canvasSelf.style.display = 'none';
+        canvasTarget.style.display = 'none';
+
+        if (positionType === 'both') {
+            canvasBoth.style.display = 'block';
+        } else if (positionType === 'self') {
+            canvasSelf.style.display = 'block';
+        } else if (positionType === 'target') {
+            canvasTarget.style.display = 'block';
+        }
     }
 
     document.getElementById('loadPositionsButton').addEventListener('click', () => {
@@ -23,26 +39,36 @@ document.addEventListener('DOMContentLoaded', function() {
         loadRobotPositions();
     });
 
-    prevPageButton.addEventListener('click', () => {
-        if (currentPage > 0) {
-            currentPage--;
+    canvasBoth.addEventListener('wheel', handleScrollEvent);
+    canvasSelf.addEventListener('wheel', handleScrollEvent);
+    canvasTarget.addEventListener('wheel', handleScrollEvent);
+
+    function handleScrollEvent(event) {
+        event.preventDefault();
+        if (event.deltaY < 0) {
+            if (currentPage > 0) {
+                currentPage--;
+                loadRobotPositions();
+            }
+        } else {
+            currentPage++;
             loadRobotPositions();
         }
-    });
-
-    nextPageButton.addEventListener('click', () => {
-        currentPage++;
-        loadRobotPositions();
-    });
+    }
 
     async function fetchRobotPositions(robotId, positionType, start, count) {
         try {
             const response = await fetch(`/robot_positions?robot_id=${robotId}&type=${positionType}&start=${start}&count=${count}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
+            console.log('Fetched data:', data); 
             updateRobotPositions(data, positionType);
             if (positionType === 'both') {
-                updateChart(data);
+                updateChart(data, canvasBoth);
+            } else if (positionType === 'self') {
+                updateSelfChart(data, canvasSelf);
+            } else if (positionType === 'target') {
+                updateTargetChart(data, canvasTarget);
             }
         } catch (error) {
             console.error('Fetch error:', error);
@@ -120,15 +146,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 updateRobotSelector(data.robots);
-                document.getElementById('pagination-controls').style.display = 'block';
             })
             .catch(error => console.error('Error fetching robot IDs:', error));
     }
 
     window.uploadComplete = uploadComplete;
 
-    function updateChart(data) {
-        const canvas = document.getElementById('posDeltaChart');
+    function updateChart(data, canvas) {
         if (!canvas) {
             console.error('Canvas element not found');
             return;
@@ -148,11 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels.push(item.gametime); 
             });
 
-            if (window.chartInstance) {
-                window.chartInstance.destroy();
+            if (canvas.chartInstance) {
+                canvas.chartInstance.destroy();
             }
 
-            window.chartInstance = new Chart(ctx, {
+            canvas.chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -161,6 +185,121 @@ document.addEventListener('DOMContentLoaded', function() {
                         data: posDeltaData,
                         borderColor: 'green',
                         backgroundColor: 'rgba(92, 184, 92, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Distance (m)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Game Time'
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            console.error("Data structure is incorrect or missing required fields.");
+        }
+    }
+    function updateSelfChart(data, canvas) {
+        if (!canvas) {
+            console.error('Canvas element not found');
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        let labels = [];
+        let posDeltaSelfData = [];
+
+        if (data && data.length > 0) {
+            data.forEach((item) => {
+                const deltaSelf = Math.sqrt(Math.pow(item.x, 2) + Math.pow(item.y, 2));
+                posDeltaSelfData.push(deltaSelf);
+                labels.push(item.gametime); 
+            });
+
+            if (canvas.chartInstance) {
+                canvas.chartInstance.destroy();
+            }
+
+            canvas.chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Self Position Delta to (0,0)',
+                        data: posDeltaSelfData,
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(70, 130, 180, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Distance (m)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Game Time'
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            console.error("Data structure is incorrect or missing required fields.");
+        }
+    }
+
+    function updateTargetChart(data, canvas) {
+        if (!canvas) {
+            console.error('Canvas element not found');
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        let labels = [];
+        let posDeltaTargetData = [];
+
+        if (data && data.length > 0) {
+            data.forEach((item) => {
+                const deltaTarget = Math.sqrt(Math.pow(item.target_x, 2) + Math.pow(item.target_y, 2));
+                posDeltaTargetData.push(deltaTarget);
+                labels.push(item.gametime); 
+            });
+
+            if (canvas.chartInstance) {
+                canvas.chartInstance.destroy();
+            }
+
+            canvas.chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Target Position Delta to (0,0)',
+                        data: posDeltaTargetData,
+                        borderColor: 'black',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
                         fill: true
                     }]
                 },

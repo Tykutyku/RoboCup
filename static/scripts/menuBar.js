@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const pageTitles = {
-        '/templates/realTime.html': 'Real-time',
+        '/templates/index.html': 'Real-time',
         '/templates/fromCSV.html': 'CSV standard',
         '/templates/fromJSON.html': 'JSON standard',
-        '/templates/index.html': 'Index for tests'
+        '/templates/test.html': 'Index for tests'
     };
 
     const pathname = window.location.pathname; // Get current pathname
@@ -15,22 +15,28 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('selectedMenuItemName').textContent = 'Select page in menu';
     }
 
-    const menu = document.getElementById('side-nav');
+    menu = document.getElementById('side-nav');
     document.getElementById('menuIcon').addEventListener("click", toggle_sidebar);
+    document.getElementById('backIcon').addEventListener("click", toggle_sidebar);
 
-    function toggle_sidebar() {
-        if (menu.classList.contains("expanded")) {
-            menu.classList.remove("expanded");
-        } else {
-            menu.classList.add("expanded");
-        }
-    }
+    const sectionButtons = document.querySelectorAll('#left_setting .section-tabs button');
+    sectionButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            switchSection(button.getAttribute('data-section'));
+        });
+    });
 
-    // Set initial state
     switchSection('menu');
 });
 
-// Move switchSection function to global scope
+function toggle_sidebar() {
+    if (menu.classList.contains("expanded")) {
+        menu.classList.remove("expanded");
+    } else {
+        menu.classList.add("expanded");
+    }
+}
+
 function switchSection(section) {
     const sections = document.querySelectorAll("#left_setting .section");
     const buttons = document.querySelectorAll("#left_setting .section-tabs button");

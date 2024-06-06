@@ -1,138 +1,372 @@
-const FIELD_WIDTH_METERS = 22; // width of the real field in meters (now using 'Y' dimension)
-const FIELD_HEIGHT_METERS = 14;
-const CANVAS_HEIGHT = 1400;
-const CANVAS_WIDTH = 2200;
+document.addEventListener('DOMContentLoaded', function() {
+    const dataSelector = document.getElementById('dataSelector');
+    const fileUploader = document.getElementById('fileUploader');
+    const canvas = document.getElementById('posDeltaChart'); 
+    const hiddenFrame = document.getElementById('hiddenFrame');
+    const form = document.getElementById('fileUploaderForm');
 
-// const loadButton = document.getElementById('loadButton');
-let robotSelector;
-let positionCanvas;
-let fieldCanvas;
-let positionLogs;
+    let currentPage = 0;
+    const pageSize = 20;
+    let lastCirclePositionSelf = null;
+    let lastCirclePositionDecawave = null;
+    let selectedCircle = null;
 
-
-let robotPositions = [];
-let scaleX, scaleY, originX, originY;
-
-// loadButton.addEventListener('click', function () {
-//     const robotId = robotSelector.value;
-//     if (robotId) { // Check if a robot is selected
-//         fetchRobotPositions(robotId);
-//         // updateField();
-//     }
-// });
-document.addEventListener('DOMContentLoaded', function () {
-    robotSelector = document.getElementById('robotSelector');
-    positionCanvas = document.getElementById('positionCanvas');
-    fieldCanvas = document.getElementById('fieldCanvas');
-    positionLogs = document.getElementsByClassName('scrollable-logs')[0];
-    robotSelector.onchange = () => { robotSelector_Change(); }
-    
-    
-    drawField();
-    let ctx = positionCanvas.getContext("2d");
-    ctx.translate(fieldCanvas.width / 2, fieldCanvas.height / 2);
-});
-
-async function fetchRobotPositions(robotId) {
-    try {
-        const response = await fetch(`/robot_positions?robot_id=${robotId}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    function loadRobotPositions() {
+        const dataType = dataSelector.value;
+        if (!dataType) {
+            alert('Please select a data type before loading positions.');
+            return;
         }
-        robotPositions = await response.json();
-    } catch (error) {
-        console.error('Fetch error:', error);
+        fetchPositionsByType(dataType, currentPage * pageSize, pageSize);
     }
-}
-function drawField() {
-    fieldCanvas.width = CANVAS_WIDTH;
-    fieldCanvas.height = CANVAS_HEIGHT;
-    positionCanvas.width = CANVAS_WIDTH;
-    positionCanvas.height = CANVAS_HEIGHT;
-    let ctx = fieldCanvas.getContext("2d");
-    ctx.translate(fieldCanvas.width / 2, fieldCanvas.height / 2);
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.arc(0, 0, 20, 0, 2 * Math.PI);
-    // ctx.fill();
-    ctx.stroke();
-}
 
-function robotSelector_Change() {
-    fetchRobotPositions(robotSelector.value);
-    let ctx = positionCanvas.getContext("2d");
-    ctx.clearRect(-positionCanvas.width / 2, -positionCanvas.height /2, positionCanvas.width, positionCanvas.height);
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    let counter = 0;
-    for (item of robotPositions) {
-        ctx.moveTo(item.y * 100, item.x * 100);
-        ctx.arc(item.y * 100, item.x * 100, 2, 0, 2 * Math.PI);
-        counter++;
-    }
-    ctx.stroke();
-    console.log("done, added " + counter +" dots");
-}
-/*
-window.addEventListener('resize', () => {
-    updateScale();
-});
-
-function updateScale() {
-    const fieldContainer = document.querySelector('.field-container');
-
-    // Calculate the visible part of the field container that maintains the aspect ratio
-    const visibleWidth = fieldContainer.clientWidth; // Full width is visible
-    // Height is based on width and the aspect ratio of the field (14/22)
-    const visibleHeight = visibleWidth * (fieldHeightMeters / fieldWidthMeters);
-
-    // Calculate scale based on the visible dimensions
-    scaleX = visibleWidth / fieldWidthMeters;
-    scaleY = visibleHeight / fieldHeightMeters;
-
-    // Calculate the origin with respect to the container
-    originX = fieldContainer.offsetLeft + (visibleWidth / 2);
-    // The header's height is subtracted from the offsetTop to get the correct Y position
-    originY = fieldContainer.offsetTop + (visibleHeight / 2) - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height'));
-    const headerHeight = document.querySelector('header').offsetHeight;
-    originY = fieldContainer.offsetTop + (visibleHeight / 2) - headerHeight;
-}
-
-function convertCoordinates(realX, realY) {
-    let screenX = originX + (realY * scaleY); // 'Y' now represents width
-    let screenY = originY - (realX * scaleX); // 'X' now represents height, Y-axis is inverted
-    return { x: screenX, y: screenY };
-}
-
-function logPosition(realX, realY, screenX, screenY) {
-    if (positionLogs) {
-        const log = document.createElement('li');
-        log.textContent = `Real position: ${realX.toFixed(2)}, ${realY.toFixed(2)} -> After calculation: ${screenX.toFixed(2)}, ${screenY.toFixed(2)}`;
-        positionLogs.appendChild(log);
-    } else {
-        console.error('positionLogs element not found');
-    }
-}
-
-function updateRobotPositions(positions) {
-    const positionsDiv = document.getElementById('robotPositions');
-    positionsDiv.innerHTML = ''; // Clear existing positions
-
-    positions.forEach(pos => {
-        const screenPos = convertCoordinates(pos.x, pos.y);
-        // Now passing both original and calculated positions to logPosition
-        logPosition(pos.x, pos.y, screenPos.x, screenPos.y);
-        
-        // Create and append the robot marker to the field
-        const robotDiv = document.createElement('div');
-        robotDiv.classList.add('robot-marker');
-        robotDiv.style.left = `${screenPos.x}px`;
-        robotDiv.style.top = `${screenPos.y}px`;
-        positionsDiv.appendChild(robotDiv);
+    dataSelector.addEventListener('change', () => {
+        currentPage = 0;
+        loadRobotPositions();
     });
-}
-*/
+
+    canvas.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        if (event.deltaY < 0) {
+            // Scroll forward move right
+            if (currentPage > 0) {
+                currentPage++;
+                loadRobotPositions();
+            }
+        } else {
+            // Scroll backwards move left
+            currentPage--;
+            loadRobotPositions();
+        }
+    });
+
+    function fetchPositionsByType(dataType, start, count) {
+        fetch(`/robot_positions_csv?type=${dataType}&start=${start}&count=${count}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched Data:", data); // Log data to console
+                updatePositions(data, dataType);
+                if (dataType === 'both' || dataType === 'self' || dataType === 'decawave') {
+                    updateChart(data, dataType);
+                }
+            })
+            .catch(error => console.error('Fetch error:', error));
+    }    
+
+    function transformCoordinates(robotX, robotY) {
+        const scale = 10;
+        const offsetX = (230 / 2) - 5;
+        const offsetY = (150 / 2) - 5;
+        const svgX = (robotX * scale) + offsetX;
+        const svgY = (robotY * scale) + offsetY;
+        return { x: svgX, y: svgY };
+    }
+
+    function updatePositions(data, dataType) {
+        const svgContainer = document.getElementById('robotPositions');
+        svgContainer.innerHTML = '';
+        lastCirclePositionSelf = null;
+        lastCirclePositionDecawave = null;
+
+        if (dataType === 'self' || dataType === 'both') {
+            if (data.self) {
+                Object.keys(data.self).forEach(robotId => {
+                    data.self[robotId].forEach((pos, index, array) => {
+                        const { x, y } = transformCoordinates(pos.x, pos.y);
+                        let color = "red";
+                        createAndAppendCircle(svgContainer, x, y, color, "self", index);
+                    });
+                });
+            }
+        }
+
+        if (dataType === 'decawave' || dataType === 'both') {
+            if (data.decawave) {
+                Object.keys(data.decawave).forEach(robotId => {
+                    data.decawave[robotId].forEach((pos, index, array) => {
+                        const { x, y } = transformCoordinates(pos.dx, pos.dy);
+                        let color = "black";
+                        createAndAppendCircle(svgContainer, x, y, color, "decawave", index);
+                    });
+                });
+            }
+        }
+    }
+
+    function createAndAppendCircle(container, x, y, color, type, index) {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", 1.5);
+        circle.setAttribute("fill", color);
+        circle.dataset.index = index;
+        circle.dataset.type = type;
+        circle.addEventListener('click', handleCircleClick);
+        container.appendChild(circle);
+
+        let lastCirclePosition = type === "self" ? lastCirclePositionSelf : lastCirclePositionDecawave;
+
+        if (lastCirclePosition) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", lastCirclePosition.x);
+            line.setAttribute("y1", lastCirclePosition.y);
+            line.setAttribute("x2", x);
+            line.setAttribute("y2", y);
+            line.setAttribute("stroke", color);
+            line.setAttribute("stroke-width", 0.5);
+            container.appendChild(line);
+        }
+
+        if (type === "self") {
+            lastCirclePositionSelf = { x, y };
+        } else {
+            lastCirclePositionDecawave = { x, y };
+        }
+
+        console.log(`Created circle at (${x}, ${y}) with index ${index} and type ${type}`);
+    }
+
+    function handleCircleClick(event) {
+        if (selectedCircle) {
+            selectedCircle.setAttribute("r", 1.5); // Reset size of previously selected circle
+        }
+        selectedCircle = event.target;
+        selectedCircle.setAttribute("r", 3); // Highlight selected circle by increasing size
+    
+        const index = selectedCircle.dataset.index;
+        const type = selectedCircle.dataset.type;
+    
+        console.log(`Circle clicked with index ${index} and type ${type}`);
+    
+        if (dataSelector.value === 'both') {
+            highlightSvgPoint(index, 'self');
+            highlightSvgPoint(index, 'decawave');
+            highlightChartPoint(index, 'self');
+            highlightChartPoint(index, 'decawave');
+        } else {
+            highlightSvgPoint(index, type);
+            highlightChartPoint(index, type);
+        }
+    }
+
+    function highlightChartPoint(index, type) {
+        const chartType = dataSelector.value;
+        let datasetIndex = type === "self" ? 0 : 1;
+
+        if (chartType === 'both' || chartType === type) {
+            const meta = window.chartInstance.getDatasetMeta(datasetIndex);
+            const point = meta.data[index];
+            if (point) {
+                const activeElements = [
+                    { datasetIndex: datasetIndex, index: parseInt(index) }
+                ];
+                if (chartType === 'both') {
+                    const otherDatasetIndex = datasetIndex === 0 ? 1 : 0;
+                    activeElements.push({ datasetIndex: otherDatasetIndex, index: parseInt(index) });
+                }
+                window.chartInstance.setActiveElements(activeElements);
+                window.chartInstance.update();
+                console.log(`Highlighted chart point with index ${index} and dataset index ${datasetIndex}`);
+            }
+        }
+    }
+
+    function updateChart(data, dataType) {
+        const canvas = document.getElementById('posDeltaChart');
+        if (!canvas) {
+            console.error('Canvas element not found');
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        let labels = [];
+        let posDeltaDataSelf = [];
+        let posDeltaDataDecawave = [];
+        let distanceData = [];
+
+        if (dataType === 'both') {
+            if (data.self && data.decawave) {
+                Object.keys(data.self).forEach(robotId => {
+                    const selfPositions = data.self[robotId] || [];
+                    const decawavePositions = data.decawave[robotId] || [];
+
+                    selfPositions.forEach((selfPoint, index) => {
+                        const decawavePoint = decawavePositions[index];
+                        if (selfPoint && decawavePoint) {
+                            const delta = Math.sqrt(
+                                Math.pow((selfPoint.x - decawavePoint.dx), 2) +
+                                Math.pow((selfPoint.y - decawavePoint.dy), 2)
+                            );
+                            distanceData.push(delta);
+                            labels.push(selfPoint.gametime);
+                        } else {
+                            console.warn(`No matching Decawave point for self point at index ${index} for robot ${robotId}`);
+                        }
+                    });
+                });
+
+                if (window.chartInstance) {
+                    window.chartInstance.destroy();
+                }
+
+                window.chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Distance Between Self and Decawave (meters)',
+                            data: distanceData,
+                            borderColor: 'green',
+                            backgroundColor: 'rgba(92, 184, 92, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        onClick: handleChartClick,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                min: 0,
+                                title: {
+                                    display: true,
+                                    text: 'Distance (m)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Game Time'
+                                }
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } else {
+                console.error("Data structure is incorrect or missing required fields.");
+            }
+        } else if (dataType === 'self' || dataType === 'decawave') {
+            let positions = [];
+            let label = '';
+            let borderColor = '';
+            let backgroundColor = '';
+
+            if (dataType === 'self' && data.self) {
+                Object.keys(data.self).forEach(robotId => {
+                    positions = data.self[robotId] || [];
+                });
+                label = 'Self Distance to (0,0)';
+                borderColor = 'red';
+                backgroundColor = 'rgba(255, 0, 0, 0.1)';
+                positions.forEach((point, index) => {
+                    const distance = Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
+                    posDeltaDataSelf.push(distance);
+                    labels.push(point.gametime);
+                });
+            } else if (dataType === 'decawave' && data.decawave) {
+                Object.keys(data.decawave).forEach(robotId => {
+                    positions = data.decawave[robotId] || [];
+                });
+                label = 'Decawave Distance to (0,0)';
+                borderColor = 'black';
+                backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                positions.forEach((point, index) => {
+                    const distance = Math.sqrt(Math.pow(point.dx, 2) + Math.pow(point.dy, 2));
+                    posDeltaDataDecawave.push(distance);
+                    labels.push(point.gametime);
+                });
+            }
+
+            if (window.chartInstance) {
+                window.chartInstance.destroy();
+            }
+
+            window.chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: dataType === 'self' ? posDeltaDataSelf : posDeltaDataDecawave,
+                        borderColor: borderColor,
+                        backgroundColor: backgroundColor,
+                        fill: true
+                    }]
+                },
+                options: {
+                    onClick: handleChartClick,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: Math.max(...(dataType === 'self' ? posDeltaDataSelf : posDeltaDataDecawave)) + 1,
+                            title: {
+                                display: true,
+                                text: 'Distance (m)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Game Time'
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    }
+
+    function handleChartClick(event, elements) {
+        if (elements.length > 0) {
+            const element = elements[0];
+            const index = element.index;
+            const type = dataSelector.value;
+
+            console.log(`Chart point clicked with index ${index} and type ${type}`);
+
+            if (type === 'both') {
+                highlightSvgPoint(index, 'self');
+                highlightSvgPoint(index, 'decawave');
+            } else {
+                highlightSvgPoint(index, type);
+            }
+        }
+    }
+
+    function highlightSvgPoint(index, type) {
+        const svgContainer = document.getElementById('robotPositions');
+        const circles = svgContainer.querySelectorAll(`circle[data-type="${type}"]`);
+    
+        circles.forEach(circle => {
+            if (circle.dataset.index == index) {
+                circle.setAttribute("r", 3); // Highlight selected circle by increasing size
+                console.log(`Highlighted SVG circle with index ${index} and type ${type}`);
+            } else {
+                circle.setAttribute("r", 1.5); // Reset size of other circles
+            }
+        });
+
+        highlightChartPoint(index, type); // Ensure chart points are highlighted as well
+    }    
+
+    // Automatically submit the form upon file selection
+    fileUploader.addEventListener('change', () => {
+        form.submit();
+    });
+
+    hiddenFrame.onload = function() {
+        document.getElementById('robotPositions').innerHTML = ''; // Clear previous positions
+        if (window.chartInstance) {
+            window.chartInstance.destroy();
+        }
+        document.getElementById('posDeltaChart').getContext('2d').clearRect(0, 0, 400, 400); // Clear the chart
+
+        loadRobotPositions();
+    };
+
+    loadRobotPositions();
+});
