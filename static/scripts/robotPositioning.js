@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showCorrectCanvas(positionType) {
+        console.log(`Showing canvas for position type: ${positionType}`);
         canvasBoth.style.display = 'none';
         canvasSelf.style.display = 'none';
         canvasTarget.style.display = 'none';
@@ -208,10 +209,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     maintainAspectRatio: false
                 }
             });
+            console.log('Chart updated successfully');
         } else {
             console.error("Data structure is incorrect or missing required fields.");
         }
     }
+
     function updateSelfChart(data, canvas) {
         if (!canvas) {
             console.error('Canvas element not found');
@@ -265,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     maintainAspectRatio: false
                 }
             });
+            console.log('Self chart updated successfully');
         } else {
             console.error("Data structure is incorrect or missing required fields.");
         }
@@ -323,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     maintainAspectRatio: false
                 }
             });
+            console.log('Target chart updated successfully');
         } else {
             console.error("Data structure is incorrect or missing required fields.");
         }
