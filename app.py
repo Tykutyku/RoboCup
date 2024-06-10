@@ -1,9 +1,16 @@
+from http import server
+from io import StringIO
+import socket
 import sys
 import json
-from flask import Flask, request, jsonify, render_template, redirect, url_for, make_response
+import threading
+from flask import Flask, request, jsonify, render_template, redirect
 import pandas as pd
 
+serverSocket = None
+
 app = Flask(__name__)
+running = True
 position_data = {}
 position_data_csv = {}
 position_data_decawave = {}
@@ -12,11 +19,11 @@ position_data_decawave = {}
 def home():
     return render_template('index.html')
 
-@app.route('/templates/fromJSON.html')
+@app.route('/fromJSON.html')
 def msl():
     return render_template('fromJSON.html')
 
-@app.route('/templates/fromCSV.html')
+@app.route('/fromCSV.html')
 def csv():
     return render_template('fromCSV.html')
 
@@ -161,11 +168,22 @@ def get_robot_positions_csv():
     app.logger.debug(f"Data being returned for {data_type}: {response_data}")
     return jsonify(response_data)
 
-
+@app.route('/realtime.html', methods=['GET'])
+def realtime():
+    return render_template('realtime.html') 
 
 @app.route('/all_robots', methods=['GET'])
 def all_robots():
     return jsonify({"robots": list(position_data.keys())})
 
+def decawave_server():
+    while running:
+        msg, client = serverSocket.recvfrom(2048)
+        decoded = str(msg.decode().rstrip('\x00'))
 if __name__ == '__main__':
     app.run(debug=True)
+
+if(serverSocket == None):
+    serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    serverSocket.bind(('0.0.0.0',5050))
+    threading.Thread(target=decawave_server).start()
