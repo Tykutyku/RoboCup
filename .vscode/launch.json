@@ -5,13 +5,28 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name":"Run app.py",
+			"name":"Python Debugger: testClient",
 			"type":"debugpy",
-			"program": "./app.py",
 			"request":"launch",
-			"args":["--no-debugger","--no-reload","--browserWindow"],
-			"jinja":true,
-			"autoStartBrowser":false
+			"program":"${workspaceFolder}/testclient.py",
+			"console":"integratedTerminal"
+		},
+		{
+			"name": "Python Debugger: Flask",
+		    "type": "debugpy",
+		    "request": "launch",
+		    "module": "flask",
+		    "env": {
+		        "FLASK_APP": "app.py",
+		        "FLASK_DEBUG": "1"
+		    },
+		    "args": [
+		        "run",
+		        "--no-debugger",
+		        "--no-reload"
+		    ],
+		    "jinja": true,
+		    "justMyCode": true
 		}
 	]
 }
