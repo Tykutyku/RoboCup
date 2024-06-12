@@ -169,7 +169,68 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`Highlighted chart point with index ${index} and dataset index ${datasetIndex}`);
             }
         }
-    }
+    }document.addEventListener('DOMContentLoaded', function() {
+        const dataSelector = document.getElementById('dataSelector');
+        const canvas = document.getElementById('posDeltaChart');
+        const svgContainer = document.getElementById('robotPositions');
+        let lastCirclePosition = {};
+    
+        const socket = new WebSocket('ws://127.0.0.1:5050');
+    
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const robotId = data.id;
+            const x = data.pos.x;
+            const y = data.pos.y;
+            const orientation = data.pos.rz;
+    
+            updateRobotPosition(robotId, x, y, orientation);
+        };
+    
+        function updateRobotPosition(robotId, x, y, orientation) {
+            const { x: svgX, y: svgY } = transformCoordinates(x, y);
+            let circle = svgContainer.querySelector(`circle[data-id="${robotId}"]`);
+    
+            if (!circle) {
+                circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("r", 3);
+                circle.setAttribute("fill", "blue");
+                circle.dataset.id = robotId;
+                svgContainer.appendChild(circle);
+            }
+    
+            circle.setAttribute("cx", svgX);
+            circle.setAttribute("cy", svgY);
+            circle.dataset.orientation = orientation;
+    
+            drawLineToPreviousPosition(robotId, svgX, svgY);
+        }
+    
+        function drawLineToPreviousPosition(robotId, x, y) {
+            if (lastCirclePosition[robotId]) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", lastCirclePosition[robotId].x);
+                line.setAttribute("y1", lastCirclePosition[robotId].y);
+                line.setAttribute("x2", x);
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", "blue");
+                line.setAttribute("stroke-width", 1);
+                svgContainer.appendChild(line);
+            }
+    
+            lastCirclePosition[robotId] = { x, y };
+        }
+    
+        function transformCoordinates(robotX, robotY) {
+            const scale = 10;
+            const offsetX = (230 / 2) - 5;
+            const offsetY = (150 / 2) - 5;
+            const svgX = (robotX * scale) + offsetX;
+            const svgY = (robotY * scale) + offsetY;
+            return { x: svgX, y: svgY };
+        }
+    });
+    
 
     function updateChart(data, dataType) {
         const canvas = document.getElementById('posDeltaChart');
@@ -309,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Game Time'
+                                text: 'Game Time (min.)'
                             }
                         }
                     },

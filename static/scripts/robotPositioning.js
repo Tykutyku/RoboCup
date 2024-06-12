@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Game Time'
+                                text: 'Game Time (min.)'
                             }
                         }
                     },
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Game Time'
+                                text: 'Game Time (min.)'
                             }
                         }
                     },
@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Game Time'
+                                text: 'Game Time (min.)'
                             }
                         }
                     },

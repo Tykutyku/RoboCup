@@ -57,13 +57,13 @@ def process_csv_data(df, file):
     try:
         robot_id = file.filename.split('-')[0][2:]
         for index, row in df.iterrows():
-            liveseconds = row.get("liveseconds", 0)
-            minutes, seconds = divmod(int(liveseconds // 1000), 60)
+            time_seconds = row.get("time(s)", 0)
+            minutes, seconds = divmod(int(time_seconds), 60)
 
-            if "wm.self.pos.x" in df.columns and "wm.self.pos.y" in df.columns:
-                x = float(row["wm.self.pos.x"])
-                y = float(row["wm.self.pos.y"])
-                orientation = float(row.get("wm.self.pos.r", 0))
+            if "robot.pos.x(m)" in df.columns and "robot.pos.y(m)" in df.columns and "robot.pos.rz(rad)" in df.columns:
+                x = float(row["robot.pos.x(m)"])
+                y = float(row["robot.pos.y(m)"])
+                orientation = float(row["robot.pos.rz(rad)"])
                 if robot_id not in position_data_csv:
                     position_data_csv[robot_id] = []
                 position_data_csv[robot_id].append({
@@ -74,20 +74,31 @@ def process_csv_data(df, file):
                 })
                 print(f"Robot {robot_id} position: x={x}, y={y}, orientation={orientation}")
 
-            hw_dw_columns = "hw.dw.result.robot_fc"
-            if f"{hw_dw_columns}.pos.x" in df.columns and f"{hw_dw_columns}.pos.y" in df.columns:
-                dx = float(row[f"{hw_dw_columns}.pos.x"])
-                dy = float(row[f"{hw_dw_columns}.pos.y"])
-                dorientation = float(row.get(f"hw.omni.result.robot_fc0.pos.r", 0))
+            if "robot.vel.x(m)" in df.columns and "robot.vel.y(m)" in df.columns and "robot.vel.rz(rad)" in df.columns:
+                vel_x = float(row["robot.vel.x(m)"])
+                vel_y = float(row["robot.vel.y(m)"])
+                vel_rz = float(row["robot.vel.rz(rad)"])
+                if robot_id not in position_data_csv:
+                    position_data_csv[robot_id] = []
+                position_data_csv[robot_id].append({
+                    "vel_x": vel_x,
+                    "vel_y": vel_y,
+                    "vel_rz": vel_rz,
+                    "gametime": f"{minutes:02d}:{seconds:02d}"
+                })
+                print(f"Robot {robot_id} velocity: vel_x={vel_x}, vel_y={vel_y}, vel_rz={vel_rz}")
+
+            if "decawave.x" in df.columns and "decawave.y" in df.columns:
+                dx = float(row["decawave.x"])
+                dy = float(row["decawave.y"])
                 if robot_id not in position_data_decawave:
                     position_data_decawave[robot_id] = []
                 position_data_decawave[robot_id].append({
                     "dx": dx,
                     "dy": dy,
-                    "dorientation": dorientation,
                     "gametime": f"{minutes:02d}:{seconds:02d}"
                 })
-                print(f"Robot {robot_id} Decawave position: dx={dx}, dy={dy}, dorientation={dorientation}")
+                print(f"Robot {robot_id} Decawave position: dx={dx}, dy={dy}")
     except KeyError as e:
         app.logger.error(f"Missing column in CSV data: {e}")
         return False
