@@ -190,7 +190,7 @@ def all_robots():
 def decawave_server():
     while running:
         msg, client = serverSocket.recvfrom(2048)
-        decoded = str(msg.decode().rstrip('\x00'))
+        R_id = int.from_bytes(b'0x00',"big")
 if __name__ == '__main__':
     app.run(debug=True)
 
