@@ -52,7 +52,7 @@
             <div class="section-tabs">
                 <button data-section="menu">Menu</button>
                 <button data-section="stats">Stats</button>
-                <button data-section="legend">Legend</button>
+                <button data-section="legend" id="legend-toggle">Legend</button>
             </div>
             <div class="section" id="menu-section">
                 <label for="fileUploader">Upload a CSV file</label>
@@ -70,7 +70,9 @@
             <div class="section" id="stats-section" style="display: none;">
                 <!-- Stats-related content here -->
             </div>
-            <div class="section" id="legend-section" style="display: none;">
+        </aside>
+        <aside id="right_legend" class="active">
+            <div id="legend-section">
                 <h2>Legend</h2>
                 <p><strong>Red Circles:</strong> Represent self-reported positions.</p>
                 <p><strong>Black Circles:</strong> Represent Decawave-reported positions.</p>
@@ -104,5 +106,10 @@
     </div>
     <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/robotPositioningCSV.js') }}"></script>
+    <script>
+        document.getElementById('legend-toggle').addEventListener('click', function () {
+            document.getElementById('right_legend').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>

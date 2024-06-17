@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dataType === 'self' || dataType === 'both') {
             if (data.self) {
                 Object.keys(data.self).forEach(robotId => {
-                    data.self[robotId].forEach((pos, index, array) => {
+                    data.self[robotId].slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((pos, index) => {
                         const { x, y } = transformCoordinates(pos.x, pos.y);
                         let color = "red";
                         createAndAppendCircle(svgContainer, x, y, color, "self", index);
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dataType === 'decawave' || dataType === 'both') {
             if (data.decawave) {
                 Object.keys(data.decawave).forEach(robotId => {
-                    data.decawave[robotId].forEach((pos, index, array) => {
+                    data.decawave[robotId].slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((pos, index) => {
                         const { x, y } = transformCoordinates(pos.dx, pos.dy);
                         let color = "black";
                         createAndAppendCircle(svgContainer, x, y, color, "decawave", index);
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const selfPositions = data.self[robotId] || [];
                     const decawavePositions = data.decawave[robotId] || [];
 
-                    selfPositions.forEach((selfPoint, index) => {
+                    selfPositions.slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((selfPoint, index) => {
                         const decawavePoint = decawavePositions[index];
                         if (selfPoint && decawavePoint) {
                             const delta = Math.sqrt(
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Game Time'
+                                    text: 'Game Time (min.)'
                                 }
                             }
                         },
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 label = 'Self Distance to (0,0)';
                 borderColor = 'red';
                 backgroundColor = 'rgba(255, 0, 0, 0.1)';
-                positions.forEach((point, index) => {
+                positions.slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((point, index) => {
                     const distance = Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
                     posDeltaDataSelf.push(distance);
                     labels.push(point.gametime);
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 label = 'Decawave Distance to (0,0)';
                 borderColor = 'black';
                 backgroundColor = 'rgba(0, 0, 0, 0.1)';
-                positions.forEach((point, index) => {
+                positions.slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((point, index) => {
                     const distance = Math.sqrt(Math.pow(point.dx, 2) + Math.pow(point.dy, 2));
                     posDeltaDataDecawave.push(distance);
                     labels.push(point.gametime);
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Game Time'
+                                text: 'Game Time (min.)'
                             }
                         }
                     },
