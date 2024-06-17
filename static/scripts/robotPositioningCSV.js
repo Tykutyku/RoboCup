@@ -384,9 +384,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function clearPreviousData() {
         const svgContainer = document.getElementById('robotPositions');
-        while (svgContainer.firstChild) {
-            svgContainer.removeChild(svgContainer.firstChild);
-        }
+		svgContainer.innerHTML = ``;
+        
         if (window.chartInstance) {
             window.chartInstance.destroy();
             window.chartInstance = null;
