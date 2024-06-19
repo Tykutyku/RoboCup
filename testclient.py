@@ -28,10 +28,8 @@ if(len(sys.argv) > 1):
 			robot_id = int(sys.argv[id_i+1])
 
 print(f"faking robot {robot_id}")
-# msg = b'\x01\x0F\x0F\x0F\x0f\x0f\x0f\x0f'
 
 bytemsg = int.from_bytes(b'0x00',"big")
-bytesSend = None
 
 def clamp(num, min_value, max_value):
    return max(min(num, max_value), min_value)
@@ -55,7 +53,7 @@ def loop():
 	msg += (robot_rz.to_bytes(4))
 	msg += (deca_x.to_bytes(4 ,signed=True))
 	msg += (deca_y.to_bytes(4 ,signed=True))
-	bytesSend = sobj.sendto(msg, (IP, PORT))
+	sobj.sendto(msg, (IP, PORT))
 	print(f"x:{robot_x}   \ny:{robot_y}   \nxv:{velo_x:.2f}   \nyv:{velo_y:.2f}   \n",end="\033[F\033[F\033[F\033[F")
 	threading.Timer(1/POLLING_RATE, loop).start()
 loop()
