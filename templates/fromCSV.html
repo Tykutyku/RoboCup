@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization Robotsports VDL</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/logo.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div id="menuIcon">☰</div>
+        <div id="logo-container">
+            <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
+            <div id="selectedMenuItemName">Select page in menu</div>
+        </div>
+        <div id="extraHeaderSpace"></div>
+        <div id="header-content">
+            <div id="timeline-container">
+                <div class="chart-and-controls">
+                    <canvas id="posDeltaChart"></canvas>
+                </div>
+            </div>                        
+        </div>
+    </header>           
+    <aside id="side-nav" class="">
+        <div id="backIcon">☰</div>
+        <nav>
+            <ul>
+                <li><a href="/realtime.html">
+                    <img src="/static/images/now.png" alt="">
+                    <span>Real-time</span>
+                </a></li>
+                <li><a href="/fromCSV.html">
+                    <img src="/static/images/csv.png" alt="">
+                    <span>CSV standard</span>
+                </a></li>
+                <li><a href="/fromJSON.html">
+                    <img src="/static/images/json-file.png" alt="">
+                    <span>JSON standard</span>
+                </a></li>
+                <li><a href="/test.html">
+                    <img src="/static/images/speedometer.png" alt="">
+                    <span>Index for tests</span>
+                </a></li>       
+            </ul>
+        </nav>
+    </aside>    
+    <div class="content-container">
+        <aside id="left_setting">
+            <div class="section-tabs">
+                <button data-section="menu">Menu</button>
+                <button data-section="stats">Stats</button>
+                <button data-section="legend" id="legend-toggle">Legend</button>
+            </div>
+            <div class="section" id="menu-section">
+                <label for="fileUploader">Upload a CSV file</label>
+                <form id="fileUploaderForm" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
+                    <input type="file" name="file" id="fileUploader" accept=".csv">
+                </form>
+                <br>
+                <label for="dataSelector">Choose Data Type:</label>
+                <select id="dataSelector">
+                    <option value="self">Self Data</option>
+                    <option value="decawave">Decawave Data</option>
+                    <option value="both">Both</option>
+                </select>
+            </div>
+            <div class="section" id="stats-section" style="display: none;">
+                <!-- Stats-related content here -->
+            </div>
+        </aside>
+        <aside id="right_legend" class="active">
+            <div id="legend-section">
+                <h2>Legend</h2>
+                <p><strong>Red Circles:</strong> Represent self-reported positions.</p>
+                <p><strong>Black Circles:</strong> Represent Decawave-reported positions.</p>
+                <p><strong>Green chart:</strong> Represents the distance between self and Decawave data points.</p>
+                <p><strong>Red chart:</strong> Represents the distance between self and center of the field.</p>
+                <p><strong>Black chart:</strong> Represents the distance between Decawave and center of the field.</p>
+            </div>
+        </aside>
+        <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
+        <div class="field-container">
+            <svg id="soccerField" class="fieldClass" viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
+                <!-- Outer boundaries -->
+                <rect x="1" y="1" width="220" height="140" fill="#136A16" stroke="#FFF" stroke-width="2"/>
+                <!-- Halfway line -->
+                <line x1="110" y1="1" x2="110" y2="142" stroke="#FFF" stroke-width="2"/>
+                <!-- Center circle -->
+                <circle cx="110" cy="70" r="16" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Left penalty area -->
+                <rect x="1" y="35.5" width="22.5" height="69" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Right penalty area -->
+                <rect x="198.5" y="35.5" width="22.5" height="69" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Left goal -->
+                <rect x="1" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Right goal -->
+                <rect x="213.5" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
+                <!-- Center mark -->
+                <circle cx="110" cy="70" r="1.5" fill="#FFF" />
+                <g id="robotPositions"></g>
+            </svg>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/robotPositioningCSV.js') }}"></script>
+    <script>
+        document.getElementById('legend-toggle').addEventListener('click', function () {
+            document.getElementById('right_legend').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
