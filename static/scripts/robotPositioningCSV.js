@@ -5,17 +5,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const hiddenFrame = document.getElementById('hiddenFrame');
     const form = document.getElementById('fileUploaderForm');
 
+    // Pagination and state variables
     let currentPage = 0;
     const pageSize = 20;
     let lastCirclePositionSelf = null;
     let lastCirclePositionDecawave = null;
     let selectedCircle = null;
 
+    // Event listener for hidden iframe load
     hiddenFrame.onload = function() {
         clearPreviousData(); 
         loadRobotPositions();
     };    
 
+    // Load robot positions based on selected data type and pagination
     function loadRobotPositions() {
         const dataType = dataSelector.value;
         if (!dataType) {
@@ -26,24 +29,24 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchPositionsByType(dataType, currentPage * pageSize, pageSize);
     }
 
+    // Event listener for data type selection change
     dataSelector.addEventListener('change', () => {
         currentPage = 0;
         loadRobotPositions();
     });
 
+    // Event listener for canvas scroll (pagination)
     canvas.addEventListener('wheel', (event) => {
         event.preventDefault();
-        if (event.deltaY < 0) {
-            if (currentPage > 0) {
-                currentPage--;
-                loadRobotPositions();
-            }
+        if (event.deltaY < 0 && currentPage > 0) {
+            currentPage--;
         } else {
             currentPage++;
-            loadRobotPositions();
         }
+        loadRobotPositions();
     });
 
+    // Fetch robot positions based on data type, start, and count
     function fetchPositionsByType(dataType, start, count) {
         fetch(`/robot_positions_csv?type=${dataType}&start=${start}&count=${count}`)
             .then(response => response.json())
@@ -57,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Fetch error:', error));
     }    
 
+    // Transform robot coordinates to SVG coordinates
     function transformCoordinates(robotX, robotY) {
         const scale = 10;
         const offsetX = (230 / 2) - 5;
@@ -66,37 +70,46 @@ document.addEventListener('DOMContentLoaded', function() {
         return { x: svgX, y: svgY };
     }
 
+    // Update SVG with fetched robot positions
     function updatePositions(data, dataType) {
         const svgContainer = document.getElementById('robotPositions');
         svgContainer.innerHTML = '';
         lastCirclePositionSelf = null;
         lastCirclePositionDecawave = null;
-
+    
         if (dataType === 'self' || dataType === 'both') {
             if (data.self) {
                 Object.keys(data.self).forEach(robotId => {
                     data.self[robotId].slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((pos, index) => {
-                        const { x, y } = transformCoordinates(pos.x, pos.y);
-                        let color = "red";
-                        createAndAppendCircle(svgContainer, x, y, color, "self", index);
+                        if (pos && pos.x !== undefined && pos.y !== undefined) { // Ensure valid position
+                            const { x, y } = transformCoordinates(pos.x, pos.y);
+                            createAndAppendCircle(svgContainer, x, y, "red", "self", index);
+                        } else {
+                            console.warn(`Invalid position data for self:`, pos);
+                        }
                     });
                 });
             }
         }
-
+    
         if (dataType === 'decawave' || dataType === 'both') {
             if (data.decawave) {
                 Object.keys(data.decawave).forEach(robotId => {
                     data.decawave[robotId].slice(currentPage * pageSize, (currentPage + 1) * pageSize).forEach((pos, index) => {
-                        const { x, y } = transformCoordinates(pos.dx, pos.dy);
-                        let color = "black";
-                        createAndAppendCircle(svgContainer, x, y, color, "decawave", index);
+                        if (pos && pos.dx !== undefined && pos.dy !== undefined) { // Ensure valid position
+                            const { x, y } = transformCoordinates(pos.dx, pos.dy);
+                            createAndAppendCircle(svgContainer, x, y, "black", "decawave", index);
+                        } else {
+                            console.warn(`Invalid position data for decawave:`, pos);
+                        }
                     });
                 });
             }
         }
     }
+    
 
+    // Create and append a circle element to the SVG container
     function createAndAppendCircle(container, x, y, color, type, index) {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x);
@@ -130,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`Created circle at (${x}, ${y}) with index ${index} and type ${type}`);
     }
 
-    
+    // Update the stats section with point data
     function updateStatsSection(pointData) {
         const statsSection = document.getElementById('stats-section');
         statsSection.innerHTML = `
@@ -141,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         statsSection.style.display = 'block';
     }
-    
 
+    // Handle circle click events
     function handleCircleClick(event) {
         if (selectedCircle) {
             selectedCircle.setAttribute("r", 1.5); // Reset size of previously selected circle
@@ -175,9 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         updateStatsSection(pointData);
     }
-    
-    
 
+    // Highlight chart point based on index and type
     function highlightChartPoint(index, type) {
         const chartType = dataSelector.value;
         let datasetIndex = type === "self" ? 0 : 1;
@@ -200,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Update chart with fetched data
     function updateChart(data, dataType) {
         const canvas = document.getElementById('posDeltaChart');
         if (!canvas) {
@@ -349,6 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Handle chart click events
     function handleChartClick(event, elements) {
         if (elements.length > 0) {
             const element = elements[0];
@@ -366,6 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Highlight SVG point based on index and type
     function highlightSvgPoint(index, type) {
         const svgContainer = document.getElementById('robotPositions');
         const circles = svgContainer.querySelectorAll(`circle[data-type="${type}"]`);
@@ -382,9 +397,10 @@ document.addEventListener('DOMContentLoaded', function() {
         highlightChartPoint(index, type); // Ensure chart points are highlighted 
     }    
 
+    // Clear previous data from SVG and chart
     function clearPreviousData() {
         const svgContainer = document.getElementById('robotPositions');
-		svgContainer.innerHTML = ``;
+        svgContainer.innerHTML = ``;
         
         if (window.chartInstance) {
             window.chartInstance.destroy();
@@ -397,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedCircle = null; // Clear selected circle reference
     }
     
+    // Handle file upload completion
     function uploadComplete(result) {
         console.log("Upload complete:", result);
         document.getElementById('pagination-controls').style.display = 'flex';
@@ -406,17 +423,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Ensure this is available globally
     window.uploadComplete = uploadComplete;
-    
 
     // Automatically submit the form upon file selection
     fileUploader.addEventListener('change', () => {
         form.submit();
     });
 
-    hiddenFrame.onload = function() {
-        clearPreviousData(); // Clear previous data upon new file upload
-        loadRobotPositions();
-    };
-
+    // Initial load of robot positions
     loadRobotPositions();
 });

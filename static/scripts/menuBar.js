@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('selectedMenuItemName').textContent = 'Select page in menu';
     }
 
-    menu = document.getElementById('side-nav');
-    document.getElementById('menuIcon').addEventListener("click", toggle_sidebar);
-    document.getElementById('backIcon').addEventListener("click", toggle_sidebar);
+    const menu = document.getElementById('side-nav');
+    document.getElementById('menuIcon').addEventListener("click", toggleSidebar);
+    document.getElementById('backIcon').addEventListener("click", toggleSidebar);
 
     const sectionButtons = document.querySelectorAll('#left_setting .section-tabs button');
     sectionButtons.forEach(button => {
@@ -27,13 +27,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     switchSection('menu');
+
+    const legendToggle = document.getElementById('legend-toggle');
+    legendToggle.addEventListener('click', toggleLegend);
 });
 
-function toggle_sidebar() {
+function toggleSidebar() {
+    const menu = document.getElementById('side-nav');
     if (menu.classList.contains("expanded")) {
         menu.classList.remove("expanded");
     } else {
         menu.classList.add("expanded");
+    }
+}
+
+function toggleLegend() {
+    const legend = document.getElementById('right_legend');
+    if (legend.classList.contains("expanded")) {
+        legend.classList.remove("expanded");
+    } else {
+        legend.classList.add("expanded");
     }
 }
 

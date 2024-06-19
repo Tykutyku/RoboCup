@@ -5,9 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const canvasSelf = document.getElementById('selfPosDeltaChart');
     const canvasTarget = document.getElementById('targetPosDeltaChart'); 
 
+    // Pagination settings
     let currentPage = 0;
     const pageSize = 20;
 
+    // Load robot positions based on selected robot and position type
     function loadRobotPositions() {
         const selectedRobotId = robotSelector.value;
         const selectedPositionType = positionSelector.value;
@@ -15,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchRobotPositions(selectedRobotId, selectedPositionType, currentPage * pageSize, pageSize);
     }
 
+    // Show the correct canvas based on position type
     function showCorrectCanvas(positionType) {
         console.log(`Showing canvas for position type: ${positionType}`);
         canvasBoth.style.display = 'none';
@@ -30,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Event listeners for loading positions and changing position type
     document.getElementById('loadPositionsButton').addEventListener('click', () => {
         currentPage = 0;
         loadRobotPositions();
@@ -40,10 +44,12 @@ document.addEventListener('DOMContentLoaded', function() {
         loadRobotPositions();
     });
 
+    // Add scroll event listeners to canvases
     canvasBoth.addEventListener('wheel', handleScrollEvent);
     canvasSelf.addEventListener('wheel', handleScrollEvent);
     canvasTarget.addEventListener('wheel', handleScrollEvent);
 
+    // Handle scroll event for pagination
     function handleScrollEvent(event) {
         event.preventDefault();
         if (event.deltaY < 0) {
@@ -57,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Fetch robot positions from the server
     async function fetchRobotPositions(robotId, positionType, start, count) {
         try {
             const response = await fetch(`/robot_positions?robot_id=${robotId}&type=${positionType}&start=${start}&count=${count}`);
@@ -64,18 +71,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             console.log('Fetched data:', data); 
             updateRobotPositions(data, positionType);
-            if (positionType === 'both') {
-                updateChart(data, canvasBoth);
-            } else if (positionType === 'self') {
-                updateSelfChart(data, canvasSelf);
-            } else if (positionType === 'target') {
-                updateTargetChart(data, canvasTarget);
-            }
+            updateChartBasedOnPositionType(data, positionType);
         } catch (error) {
             console.error('Fetch error:', error);
         }
     }
 
+    // Update robot positions on the SVG container
     function updateRobotPositions(positions, positionType) {
         const svgContainer = document.getElementById('robotPositions');
         svgContainer.innerHTML = '';
@@ -102,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Helper function to create and append a circle element
     function createAndAppendCircle(container, x, y, color, radius, lastPosition, type) {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x);
@@ -122,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Transform robot coordinates for SVG display
     function transformCoordinates(robotX, robotY) {
         var scale = 10;  
         var offsetX = (230 / 2) - 5;
@@ -131,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return { x: svgX, y: svgY };
     }
 
+    // Update robot selector options
     function updateRobotSelector(robots) {
         robotSelector.innerHTML = '<option value="" hidden>Select a Robot</option>';
         robots.forEach(robotId => {
@@ -141,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Handle upload completion and update robot selector
     function uploadComplete(data) {
         alert(data.message);
         fetch('/all_robots')
@@ -153,6 +159,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.uploadComplete = uploadComplete;
 
+    // Update chart based on the position type
+    function updateChartBasedOnPositionType(data, positionType) {
+        if (positionType === 'both') {
+            updateChart(data, canvasBoth);
+        } else if (positionType === 'self') {
+            updateSelfChart(data, canvasSelf);
+        } else if (positionType === 'target') {
+            updateTargetChart(data, canvasTarget);
+        }
+    }
+
+    // Update the 'both' position chart
     function updateChart(data, canvas) {
         if (!canvas) {
             console.error('Canvas element not found');
@@ -215,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Update the 'self' position chart
     function updateSelfChart(data, canvas) {
         if (!canvas) {
             console.error('Canvas element not found');
@@ -274,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Update the 'target' position chart
     function updateTargetChart(data, canvas) {
         if (!canvas) {
             console.error('Canvas element not found');
@@ -333,5 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Initial load of robot positions
     loadRobotPositions();
 });
