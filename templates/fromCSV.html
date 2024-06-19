@@ -21,7 +21,9 @@
                 <div class="chart-and-controls">
                     <canvas id="posDeltaChart"></canvas>
                 </div>
-            </div>                        
+            </div>  
+            <!-- Legend Toggle Button -->
+            <button id="legend-toggle">Legend</button>
         </div>
     </header>           
     <aside id="side-nav" class="">
@@ -52,7 +54,6 @@
             <div class="section-tabs">
                 <button data-section="menu">Menu</button>
                 <button data-section="stats">Stats</button>
-                <button data-section="legend" id="legend-toggle">Legend</button>
             </div>
             <div class="section" id="menu-section">
                 <label for="fileUploader">Upload a CSV file</label>
@@ -71,7 +72,7 @@
                 <!-- Stats-related content here -->
             </div>
         </aside>
-        <aside id="right_legend" class="active">
+        <aside id="right_legend" class="collapsed">
             <div id="legend-section">
                 <h2>Legend</h2>
                 <p><strong>Red Circles:</strong> Represent self-reported positions.</p>
@@ -80,7 +81,7 @@
                 <p><strong>Red chart:</strong> Represents the distance between self and center of the field.</p>
                 <p><strong>Black chart:</strong> Represents the distance between Decawave and center of the field.</p>
             </div>
-        </aside>
+        </aside>                      
         <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
         <div class="field-container">
             <svg id="soccerField" class="fieldClass" viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
