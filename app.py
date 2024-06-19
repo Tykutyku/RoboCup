@@ -209,23 +209,40 @@ def get_robot_positions_csv():
 def all_robots():
 	return jsonify({"robots": list(position_data_msl.keys())})
 
+@socketio.on('connect')
+def socket_connect(msg):
+	print(f"new connection msg:{msg}")
+	pass
+
 def decawave_server_loop():
-		msg, client = serverSocket.recvfrom(2048)
+	while True:
+		# TODO this should not be a trycatch it is bad for performance but there is no available function for sockets :(
+		try:
+			msg, client = serverSocket.recvfrom(2048)
+		except BlockingIOError: 
+			break
 		msg = bytearray(msg)
 		R_id = int.from_bytes(msg[0:1],"big")
 		position_data_realtime[R_id] = {
-			"robot": {
-			"x": int.from_bytes(msg[1:5],"big", signed=True) / 1000,
-			"y": int.from_bytes(msg[5:9],"big", signed=True) / 1000,
-			"rz": int.from_bytes(msg[9:13],"big"),
-			},
-			"decawave":{
-				"x":int.from_bytes(msg[13:17],"big", signed=True) / 1000,
-				"y":int.from_bytes(msg[17:21],"big", signed=True) / 1000,
+				"robot": {
+				"x": int.from_bytes(msg[1:5],"big", signed=True) / 1000,
+				"y": int.from_bytes(msg[5:9],"big", signed=True) / 1000,
+				"rz": int.from_bytes(msg[9:13],"big"),
+				},
+				"decawave":{
+					"x":int.from_bytes(msg[13:17],"big", signed=True) / 1000,
+					"y":int.from_bytes(msg[17:21],"big", signed=True) / 1000,
+				}
 			}
-		}
-		threading.Timer(0.005,decawave_server_loop).start()
+	globals()["ups"] += 1
+	with app.app_context():
+		socketio.emit("realtimeData_Update", position_data_realtime)
+	threading.Timer(1 / POLLING_RATE, decawave_server_loop).start()
 
+def debugTime(): 
+	print(f'updates/second: {ups}')
+	globals()['ups'] =0
+	threading.Timer(1,debugTime).start()
 # *** main ***
 if __name__ == '__main__':
 	app.run(debug=True)
@@ -237,4 +254,7 @@ if __name__ == '__main__':
 if(serverSocket == None):
 	serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	serverSocket.bind(('0.0.0.0',5050))
+	serverSocket.setblocking(False)
 	threading.Timer(0.005,decawave_server_loop).start()
+if('UPS' in DEBUG):
+	threading.Timer(1,debugTime).start()
