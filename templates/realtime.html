@@ -80,15 +80,13 @@
 		crossorigin="anonymous"></script>
 	<script type="text/javascript" charset="utf-8">
 		var socket = io();
-		socket.on('realtimeData_response', UpdateData);
 		socket.on('realtimeData_Update', UpdateData);
 		let robotPositions;
 		document.addEventListener('DOMContentLoaded', function () {
 			robotPositions = document.getElementById("robotPositions");
-			if (robotPositions == null) { return; }
-			setInterval(() => { socket.send("realtimeData_request") }, 100)
 		});
 		function UpdateData(jsonData) {
+			if(robotPositions == null) {return;}
 			robotPositions.innerHTML = '';
 			for (let [key, data] of Object.entries(jsonData)) {
 				robot_pos = transformCoordinates(data["robot"].x, data["robot"].y);
@@ -96,19 +94,6 @@
 				CreateCircle(robotPositions, robot_pos.x, robot_pos.y, "red", 1.5);
 				CreateCircle(robotPositions, deca_pos.x, deca_pos.y, "black", 1.5);
 			}
-		}
-		function OLD_UpdateData() {
-			fetch(`/realtime`).then(response => response.json())
-				.then(jsonData => {
-					robotPositions.innerHTML = '';
-					for (let [key, data] of Object.entries(jsonData)) {
-						robot_pos = transformCoordinates(data["robot"].x, data["robot"].y);
-						deca_pos = transformCoordinates(data["decawave"].x, data["decawave"].y);
-						CreateCircle(robotPositions, robot_pos.x, robot_pos.y, "red", 1.5);
-						CreateCircle(robotPositions, deca_pos.x, deca_pos.y, "black", 1.5);
-					}
-				})
-				.catch();
 		}
 		function CreateCircle(container, x, y, color, radius) {
 			const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
