@@ -13,6 +13,14 @@
 			"args": [ "--id", "1"]
 		},
 		{
+			"name":"Python Debugger: fileClient",
+			"type":"debugpy",
+			"request":"launch",
+			"program":"${workspaceFolder}/fileClient.py",
+			"console":"integratedTerminal",
+			"args": ["./example_data/R01-20240606T223833-variant-2.csv"]
+		},
+		{
 			"name": "Python Debugger: Flask",
 		    "type": "debugpy",
 		    "request": "launch",
@@ -29,5 +37,6 @@
 		    "jinja": true,
 		    "justMyCode": true
 		}
+		
 	]
 }
