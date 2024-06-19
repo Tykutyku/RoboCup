@@ -6,11 +6,13 @@ from time import sleep
 
 DEBUG = False
 MAX_VEL = 30
-ACCEL_MULT = 2
+POLLING_RATE = 10 #Hz
+ACCEL_MULT = 20
+IP = "127.0.0.1"
+PORT = 5050
+
 sobj = socket(AF_INET, SOCK_DGRAM)
 
-ip = "127.0.0.1"
-port = 5050
 robot_id = 1
 robot_x = 0
 robot_y = 0
@@ -35,10 +37,10 @@ def clamp(num, min_value, max_value):
    return max(min(num, max_value), min_value)
 
 def randomize_pos():
-	rand = (random.random() - .5) * ACCEL_MULT
+	rand = round(random.random() - .5, 4) * ACCEL_MULT
 	globals()['velo_y'] = clamp(velo_y + rand if -11000 <= robot_y + velo_y <= 11000 else 0, -MAX_VEL, MAX_VEL)
 	globals()['robot_y'] = clamp(int(robot_y + velo_y),-11000,11000)
-	rand = (random.random() - .5) * ACCEL_MULT 
+	rand = round(random.random() - .5, 4) * ACCEL_MULT 
 	globals()['velo_x'] = clamp(velo_x + rand if -7000 <= robot_x + velo_x <= 7000 else 0, -MAX_VEL, MAX_VEL)
 	globals()['robot_x'] = clamp(int(robot_x + velo_x),-7000, 7000)
 	if(DEBUG):
@@ -53,9 +55,7 @@ def loop():
 	msg += (robot_rz.to_bytes(4))
 	msg += (deca_x.to_bytes(4 ,signed=True))
 	msg += (deca_y.to_bytes(4 ,signed=True))
-	bytesSend = sobj.sendto(msg, (ip, port))
-	if(bytesSend < 0):
-		print("couldn't send bytes, did is the server running")
-		exit()
-	threading.Timer(0.005, loop).start()
+	bytesSend = sobj.sendto(msg, (IP, PORT))
+	print(f"x:{robot_x}   \ny:{robot_y}   \nxv:{velo_x:.2f}   \nyv:{velo_y:.2f}   \n",end="\033[F\033[F\033[F\033[F")
+	threading.Timer(1/POLLING_RATE, loop).start()
 loop()
