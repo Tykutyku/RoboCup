@@ -1,103 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualization Robotsports VDL</title>
-    <link rel="icon" type="image/x-icon" href="/static/images/logo.png">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="/static/images/logo.png">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<script src="{{url_for('static', filename='main.js')}}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+
+	
+	{% if extra_style %}
+	<!--this is ugly but couldn't get it to work otherwise-->
+	<style>
+	{% include extra_style %}
+	</style>
+	{% endif %}
+	<title>{{ page }} - Visualization tool</title>
 </head>
-<body>
-    <header>
-        <div id="menuIcon">☰</div>
-        <div id="logo-container">
-            <img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team">
-            <div id="selectedMenuItemName">Select page in menu</div>
-        </div>
-        <div id="extraHeaderSpace"></div>
+<body class="flex column">
+	<header class="flex row">
+		<div id="menuIcon">☰</div>
+		<img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team Logo">
         <div id="header-content">
-            <div id="timeline-container">
-                <div class="chart-and-controls">
-                    <canvas id="posDeltaChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </header>
-    <aside id="side-nav">
-        <div id="backIcon">☰</div>
-        <nav>
-            <ul>
-                <li><a href="/realtime.html">
-                    <img src="/static/images/now.png" alt="">
-                    <span>Real-time</span>
-                </a></li>
-                <li><a href="/fromCSV.html">
-                    <img src="/static/images/csv.png" alt="">
-                    <span>CSV standard</span>
-                </a></li>
-                <li><a href="/fromJSON.html">
-                    <img src="/static/images/json-file.png" alt="">
-                    <span>JSON standard</span>
-                </a></li>
-                <li><a href="/test.html">
-                    <img src="/static/images/speedometer.png" alt="">
-                    <span>Index for tests</span>
-                </a></li>
-            </ul>
-        </nav>
-    </aside>
-    <div class="content-container">
-        <aside id="left_setting">
-            <div class="section-tabs">
-                <button data-section="menu">Menu</button>
-                <button data-section="stats">Stats</button>
-                <button data-section="legend">Legend</button>
-            </div>
-            <div class="section" id="menu-section">
-                <label for="fileUploader">Upload a CSV file</label>
-                <form id="fileUploaderForm" action="/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
-                    <input type="file" name="file" id="fileUploader" accept=".csv">
-                </form>
-                <br>
-                <label for="dataSelector">Choose Data Type:</label>
-                <select id="dataSelector">
-                    <option value="self">Self Data</option>
-                    <option value="decawave">Decawave Data</option>
-                    <option value="both">Both</option>
-                </select>
-            </div>
-            <div class="section" id="stats-section" style="display: none;">
-                <!-- Stats-related content here -->
-            </div>
-            <div class="section" id="legend-section" style="display: none;">
-                <!-- legend content here -->
-            </div>
-        </aside>
-        <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
-        <div class="field-container">
-            <svg id="soccerField" class="fieldClass" viewBox="0 0 230 150" preserveAspectRatio="xMidYMid meet">     
-                <!-- Outer boundaries -->
-                <rect x="1" y="1" width="220" height="140" fill="#136A16" stroke="#FFF" stroke-width="2"/>
-                <!-- Halfway line -->
-                <line x1="110" y1="1" x2="110" y2="142" stroke="#FFF" stroke-width="2"/>
-                <!-- Center circle -->
-                <circle cx="110" cy="70" r="16" fill="none" stroke="#FFF" stroke-width="2"/>
-                <!-- Left penalty area -->
-                <rect x="1" y="35.5" width="22.5" height="69" fill="none" stroke="#FFF" stroke-width="2"/>
-                <!-- Right penalty area -->
-                <rect x="198.5" y="35.5" width="22.5" height="69" fill="none" stroke="#FFF" stroke-width="2"/>
-                <!-- Left goal -->
-                <rect x="1" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
-                <!-- Right goal -->
-                <rect x="213.5" y="50.5" width="7.5" height="39" fill="none" stroke="#FFF" stroke-width="2"/>
-                <!-- Center mark -->
-                <circle cx="110" cy="70" r="1.5" fill="#FFF" />
-                <g id="robotPositions"></g>
-            </svg>
-        </div>
-    </div>
-    <script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
-    <script src="{{ url_for('static', filename='scripts/test.js') }}"></script>
+			{% if header_content %}
+			{% include header_content %}
+			{% endif %}
+		</div>
+	</header>
+	<div id="notificationBar"></div>
+	<div class="flex row max">
+		<nav id="sidenav" class="">
+			<ul>
+				<li><a href="/Realtime/">
+					<img src="/static/images/now.png" alt="">
+						<span>Realtime</span></a>
+				</li>
+				<li><a href="/CSV/">
+					<img src="/static/images/csv.png" alt="">
+						<span>CSV</span></a>
+				</li>
+				<li><a href="/MSL/">
+					<img src="/static/images/MSL.png" alt="">
+						<span>MSL</span></a>
+				</li>
+				<li><a href="/Settings/">
+					<img src="/static/images/Gear.svg" alt="">
+						<span>Settings</span></a>
+				</li>
+			</ul>
+		</nav>
+		<aside id="sidebar">
+			{% if sidebar %}
+			{% include sidebar %}
+			{% endif %}
+		</aside>
+		<page class="flex max">
+			{% if page %}
+			{% include page+"/index.html" %}
+			{% endif %}
+		</page>
+	</div>
 </body>
 </html>

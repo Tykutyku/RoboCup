@@ -1,2 +1,0 @@
-# For SQLAlchemy models
-

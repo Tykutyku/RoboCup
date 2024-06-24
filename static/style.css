@@ -1,0 +1,172 @@
+#field-container{
+	display: flex;
+	flex-grow: 1;
+}
+#field-container svg{
+	background-color: #136A16;
+	margin: auto;
+	max-height: 75vh;
+}
+
+header {
+	height: var(--header-height);
+}
+
+header #menuIcon {
+	/* position: absolute; */
+	z-index: 30;
+	font-size: 2rem;
+	cursor: pointer;
+	margin: .5rem;
+	height: 2.75rem;
+}
+
+header #logo {
+	max-width: 12rem;
+	max-height: 10rem;
+	align-self: center;
+}
+
+#notificationBar {
+	margin-top: 2rem;
+	position: absolute;
+	left:25%;
+	width: 50%;
+	overflow-y: hidden;
+	font-size: 14pt;
+	z-index: 999;
+}
+#notificationBar div{
+	padding: .5rem;
+	margin: .2rem 0;
+	transition: ease-out 1s;
+	transform-origin:top;
+}
+#notificationBar span{
+	flex-grow: 1;
+	white-space: preserve;
+	padding: 1rem;
+}
+#notificationBar span::before{
+	content: "x";
+	display: block;
+	cursor: pointer;
+	height: 0;
+	text-align: end;
+}
+
+#notificationBar .Error{
+	background-color: #F88;
+}
+#notificationBar .Error span{
+	border: solid var(--notification-border-width) #F00;
+}
+#notificationBar .Warn{
+	background-color: #FF8;
+}
+#notificationBar .Warn span{
+	border: solid var(--notification-border-width) #FD0;
+}
+#notificationBar .Info{
+	background-color: #EEE;
+}
+#notificationBar .Info span{
+	border: solid var(--notification-border-width) #999;
+}
+
+#sidenav {
+	position: fixed;
+	width: var(--side-nav-width);
+	height: 100vh;
+	top: 0;
+	left: calc(var(--side-nav-width) * -1);
+	background-color: #fff;
+	transition: 0.5s;
+	z-index: 20;
+	/* Above content but below the menu icon */
+	border-right: 1px solid #ccc;
+	padding-top: 60px;
+	box-sizing: border-box;
+}
+
+#sidenav.expanded {
+	left: 0;
+	box-shadow: 2px 0px 5px rgba(0, 0, 0, 1);
+}
+
+#sidenav ul {
+	list-style-type: none;
+	padding: 0;
+	text-align: center;
+}
+
+#sidenav a {
+	display: flex;
+	text-decoration: none;
+	color:black;
+	font-size: 14pt;
+}
+
+#sidenav span {
+	align-self: center;
+}
+
+#sidenav img {
+	/* display: inline; */
+	height: 4rem;
+	width: auto;
+	margin: .5rem;
+	margin-right: 1rem;
+}
+
+#sidenav span {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+#sidebar{
+	background-color: #eee;
+	width:var(--side-nav-width);
+}
+
+page{
+	background-color: #aaa;
+	padding: 1rem;
+	justify-content:center;
+}
+
+html,
+body {
+	font-family: "Lato", sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	display: flex;
+	height: 100vh;
+	background-color: #ccc; /*If red visible, something is terribly wrong*/
+}
+
+.flex {
+	display: flex;
+}
+
+.flex.column {
+	flex-direction: column;
+}
+
+.flex.row {
+	flex-direction: row;
+}
+
+.flex > .max {
+	flex-grow: 1;
+}
+
+:root {
+	--icon-size: 4rem;
+	--header-height: 15rem;
+	--side-nav-width: 16rem;
+	--notification-border-width: .3rem
+}

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('selectedMenuItemName').textContent = 'Select page in menu';
     }
 
-    menu = document.getElementById('side-nav');
+    menu =  document.getElementById('side-nav');
     document.getElementById('menuIcon').addEventListener("click", toggle_sidebar);
     document.getElementById('backIcon').addEventListener("click", toggle_sidebar);
 
