@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/x-icon" href="/static/images/logo.png">
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+		integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+		crossorigin="anonymous"></script>
 	<script src="{{url_for('static', filename='main.js')}}"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-
-	
 	{% if extra_style %}
-	<!--this is ugly but couldn't get it to work otherwise-->
-	<style>
-	{% include extra_style %}
-	</style>
+	<link rel="stylesheet" href="{{extra_style}}">
 	{% endif %}
 	<title>{{ page }} - Visualization tool</title>
 </head>
+
 <body class="flex column">
 	<header class="flex row">
-		<div id="menuIcon">☰</div>
+		<div id="menuIcon" class="hover">☰</div>
 		<img id="logo" src="/static/images/logo.png" alt="RobotSports VDL Team Logo">
-        <div id="header-content">
+		<div id="header-content" class="flex max">
 			{% if header_content %}
-			{% include header_content %}
+			{% include page+"/header.html" %}
 			{% endif %}
 		</div>
 	</header>
@@ -31,20 +30,20 @@
 	<div class="flex row max">
 		<nav id="sidenav" class="">
 			<ul>
-				<li><a href="/Realtime/">
-					<img src="/static/images/now.png" alt="">
+				<li class="hover"><a href="/Realtime/">
+						<img src="/static/images/now.png" alt="">
 						<span>Realtime</span></a>
 				</li>
-				<li><a href="/CSV/">
-					<img src="/static/images/csv.png" alt="">
+				<li class="hover"><a href="/CSV/">
+						<img src="/static/images/csv.png" alt="">
 						<span>CSV</span></a>
 				</li>
-				<li><a href="/MSL/">
-					<img src="/static/images/MSL.png" alt="">
+				<li class="hover"><a href="/MSL/">
+						<img src="/static/images/MSL.png" alt="">
 						<span>MSL</span></a>
 				</li>
-				<li><a href="/Settings/">
-					<img src="/static/images/Gear.svg" alt="">
+				<li class="hover"><a href="/Settings/">
+						<img src="/static/images/Gear.svg" alt="">
 						<span>Settings</span></a>
 				</li>
 			</ul>
@@ -54,11 +53,12 @@
 			{% include sidebar %}
 			{% endif %}
 		</aside>
-		<page class="flex max">
+		<div id="page" class="flex max row center">
 			{% if page %}
 			{% include page+"/index.html" %}
 			{% endif %}
-		</page>
-	</div>
+			</page>
+		</div>
 </body>
+
 </html>

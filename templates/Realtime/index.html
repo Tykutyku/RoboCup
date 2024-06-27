@@ -1,1 +1,13 @@
 <div id="field-container"></div>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		socket.on('realtimeData_Update', UpdateData);
+	});
+	function UpdateData(jsonData) {
+			if(robotContainer == null) {return;}
+			robotContainer.innerHTML = '';
+			for (let [key, data] of Object.entries(jsonData)) {
+				Field_drawRobot(data["robot"].x, data["robot"].y, data["robot"].rz);
+			}
+		}
+</script>

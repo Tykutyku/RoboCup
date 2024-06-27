@@ -1,8 +1,10 @@
-#field-container{
+#field-container {
 	display: flex;
 	flex-grow: 1;
+	margin: auto;
 }
-#field-container svg{
+
+#field-container svg {
 	background-color: #136A16;
 	margin: auto;
 	max-height: 75vh;
@@ -10,6 +12,7 @@
 
 header {
 	height: var(--header-height);
+	width: 100vw;
 }
 
 header #menuIcon {
@@ -27,27 +30,34 @@ header #logo {
 	align-self: center;
 }
 
+#header-content {
+	padding: 1rem;
+}
+
 #notificationBar {
 	margin-top: 2rem;
 	position: absolute;
-	left:25%;
+	left: 25%;
 	width: 50%;
 	overflow-y: hidden;
 	font-size: 14pt;
 	z-index: 999;
 }
-#notificationBar div{
+
+#notificationBar div {
 	padding: .5rem;
 	margin: .2rem 0;
-	transition: ease-out 1s;
-	transform-origin:top;
+	transition: ease-out .25s;
+	transform-origin: top;
 }
-#notificationBar span{
+
+#notificationBar span {
 	flex-grow: 1;
 	white-space: preserve;
 	padding: 1rem;
 }
-#notificationBar span::before{
+
+#notificationBar span::before {
 	content: "x";
 	display: block;
 	cursor: pointer;
@@ -55,22 +65,27 @@ header #logo {
 	text-align: end;
 }
 
-#notificationBar .Error{
+#notificationBar .Error {
 	background-color: #F88;
 }
-#notificationBar .Error span{
+
+#notificationBar .Error span {
 	border: solid var(--notification-border-width) #F00;
 }
-#notificationBar .Warn{
+
+#notificationBar .Warn {
 	background-color: #FF8;
 }
-#notificationBar .Warn span{
+
+#notificationBar .Warn span {
 	border: solid var(--notification-border-width) #FD0;
 }
-#notificationBar .Info{
+
+#notificationBar .Info {
 	background-color: #EEE;
 }
-#notificationBar .Info span{
+
+#notificationBar .Info span {
 	border: solid var(--notification-border-width) #999;
 }
 
@@ -103,7 +118,7 @@ header #logo {
 #sidenav a {
 	display: flex;
 	text-decoration: none;
-	color:black;
+	color: black;
 	font-size: 14pt;
 }
 
@@ -112,11 +127,9 @@ header #logo {
 }
 
 #sidenav img {
-	/* display: inline; */
 	height: 4rem;
 	width: auto;
-	margin: .5rem;
-	margin-right: 1rem;
+	margin: .5rem 1rem;
 }
 
 #sidenav span {
@@ -124,15 +137,35 @@ header #logo {
 	justify-content: center;
 	flex-direction: column;
 }
-#sidebar{
+
+#sidebar {
 	background-color: #eee;
-	width:var(--side-nav-width);
+	width: var(--side-nav-width);
 }
 
-page{
+#page {
 	background-color: #aaa;
 	padding: 1rem;
-	justify-content:center;
+	justify-content: center;
+}
+
+button {
+	border: none;
+	border-radius: .3rem;
+	cursor: pointer;
+	color: white;
+	padding: .5rem 1rem ;
+	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+	background-color: var(--accent-color);
+	transition: .1s ease-in-out;
+}
+.hover{
+	transition: .1s ease-in-out;
+}
+button:hover,
+.hover:hover{
+	transform: scale(110%, 110%);
+	opacity: .9;
 }
 
 html,
@@ -145,28 +178,64 @@ body {
 body {
 	display: flex;
 	height: 100vh;
-	background-color: #ccc; /*If red visible, something is terribly wrong*/
+	background-color: #ccc;
+	font-size: 15pt;
 }
 
 .flex {
 	display: flex;
 }
 
+.flex>*:not(.max) {
+	align-self: flex-start;
+}
+
 .flex.column {
 	flex-direction: column;
+	justify-content: flex-start;
 }
 
 .flex.row {
+	justify-content: flex-start;
 	flex-direction: row;
 }
 
-.flex > .max {
+.flex.center {
+	justify-content: center;
+}
+
+.flex.space-around {
+	justify-content: space-around;
+}
+
+.flex.space-between {
+	justify-content: space-between;
+}
+
+.flex.space-evenly {
+	justify-content: space-evenly;
+}
+
+.flex.end {
+	justify-content: flex-end;
+}
+
+.flex>.self-end {
+	align-self: flex-end;
+}
+
+.flex>.max {
 	flex-grow: 1;
+}
+
+* {
+	font-size: 15pt;
 }
 
 :root {
 	--icon-size: 4rem;
 	--header-height: 15rem;
 	--side-nav-width: 16rem;
-	--notification-border-width: .3rem
+	--notification-border-width: .3rem;
+	--accent-color: #5cb85c;
 }
