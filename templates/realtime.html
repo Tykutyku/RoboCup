@@ -2,12 +2,12 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Position Visualization</title>
-    <link rel="icon" type="image/x-icon" href="/static/images/logo.png">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Robot Position Visualization</title>
+	<link rel="icon" type="image/x-icon" href="/static/images/logo.png">
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -74,29 +74,28 @@
 	</div>
 	<script src="{{ url_for('static', filename='scripts/menuBar.js') }}"></script>
 	<script src="{{ url_for('static', filename='scripts/robotPositioning.js') }}"></script>
-	<script src="{{ url_for('static', filename='scripts/lib.js')}}"></script>>
-	<script>
+	<script src="{{ url_for('static', filename='scripts/lib.js')}}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+		integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+		crossorigin="anonymous"></script>
+	<script type="text/javascript" charset="utf-8">
+		var socket = io();
+		socket.on('realtimeData_Update', UpdateData);
 		let robotPositions;
 		document.addEventListener('DOMContentLoaded', function () {
 			robotPositions = document.getElementById("robotPositions");
-			if (robotPositions == null) { return; }
-			setInterval(UpdateData, 100)
 		});
-		function UpdateData() {
-			if (robotPositions == null) { return; }
-			fetch(`/realtime`).then(response => response.json())
-				.then(jsonData => {
-					robotPositions.innerHTML = '';
-					for(let [key,data] of Object.entries(jsonData)) {
-						robot_pos = transformCoordinates(data["robot"].x, data["robot"].y);
-						deca_pos = transformCoordinates(data["decawave"].x, data["decawave"].y);
-						CreateCircle(robotPositions, robot_pos.x, robot_pos.y,"red",1.5);
-						CreateCircle(robotPositions, deca_pos.x, deca_pos.y,"black",1.5);
-					}
-				})
-				.catch();
+		function UpdateData(jsonData) {
+			if(robotPositions == null) {return;}
+			robotPositions.innerHTML = '';
+			for (let [key, data] of Object.entries(jsonData)) {
+				robot_pos = transformCoordinates(data["robot"].x, data["robot"].y);
+				deca_pos = transformCoordinates(data["decawave"].x, data["decawave"].y);
+				CreateCircle(robotPositions, robot_pos.x, robot_pos.y, "red", 1.5);
+				CreateCircle(robotPositions, deca_pos.x, deca_pos.y, "black", 1.5);
+			}
 		}
-		function CreateCircle(container, x, y, color,radius) {
+		function CreateCircle(container, x, y, color, radius) {
 			const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 			circle.setAttribute("cx", x);
 			circle.setAttribute("cy", y);
